@@ -1,0 +1,101 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "SkinCareAppContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Repository",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[AI_Analysis_Logs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AI_Analysis_Products]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Blog_Comments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Blogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Daily_Routine]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Daily_Routine_Products]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Payment_Logs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Product_Categories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Product_Category_Mappings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Suggested_Products]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TempUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[User_VIP]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Users]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VIP_Packages]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}
