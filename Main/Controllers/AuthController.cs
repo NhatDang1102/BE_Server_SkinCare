@@ -5,7 +5,7 @@ using Service.Interfaces;
 namespace MainApp.Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("SkinCare/Auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
