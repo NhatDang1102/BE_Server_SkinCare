@@ -30,7 +30,9 @@ docker-compose.override.yml
 # === secrets (nếu có) ===
 secrets.json
 appsettings.Development.json
+firebaseTest.html
 appsettings.Secret.json
+skincare-f2d06-firebase-adminsdk-fbsvc-85448f1f3b.json
 netmusicshop-b5d9c-268b5c9d8876.json
 # === OS-specific ===
 .DS_Store

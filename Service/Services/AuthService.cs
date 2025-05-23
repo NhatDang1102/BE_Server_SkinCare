@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using FirebaseAdmin.Auth;
 
 namespace Service.Services
 {
@@ -31,11 +32,12 @@ namespace Service.Services
 
         public async Task<string> RegisterAsync(RegisterDto dto)
         {
+            //check mail trong ca temp va user
             if (await _repo.EmailExistsAsync(dto.Email))
                 return "Email đã tồn tại hoặc chưa xác thực OTP.";
-
+            //gen otp random 6 so
             var otp = new Random().Next(100000, 999999).ToString();
-
+            //check user
             var tempUser = new TempUser
             {
                 Id = Guid.NewGuid(),
@@ -60,7 +62,7 @@ namespace Service.Services
             if (temp == null) return "Email không tồn tại hoặc đã tồn tại.";
             if (temp.Otp != dto.Otp) return "OTP sai.";
             if (temp.Otpexpiration < DateTime.Now) return "OTP đã hết hạn.";
-
+            //check user
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -75,7 +77,7 @@ namespace Service.Services
 
             await _repo.CreateUserAsync(user);
             await _repo.DeleteTempUserAsync(dto.Email);
-
+            //day mail service de gui mail
             await _mailSender.SendWelcomeEmailAsync(user.Email, user.Name);
 
             return "Xác thực thành công, tài khoản đã được tạo.";
@@ -85,12 +87,14 @@ namespace Service.Services
         {
             var user = await _repo.GetUserByEmailAsync(dto.Email);
 
+            //check mail
             if (user == null || (user.IsActive.HasValue && !user.IsActive.Value))
-                throw new Exception("Sai pass/mail.");
-
+                throw new Exception("Sai mail.");
+            //check pass
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
                 throw new Exception("Pass sai");
 
+            //gen token
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, user.Email),
@@ -107,6 +111,52 @@ namespace Service.Services
                 signingCredentials: creds
             );
 
+            return new LoginResultDto
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Role = user.Role,
+                Name = user.Name
+            };
+        }
+
+        public async Task<LoginResultDto> FirebaseLoginAsync(FirebaseLoginDto dto)
+        {
+            // xac minh token
+            var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(dto.IdToken);
+            var email = decodedToken.Claims["email"].ToString();
+
+            //check user
+            var user = await _repo.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = email,
+                    Name = decodedToken.Claims.ContainsKey("name") ? decodedToken.Claims["name"].ToString() : "Google User",
+                    Role = "User",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                await _repo.CreateUserAsync(user);
+            }
+
+            //gen jwt token
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.Name ?? ""),
+        new Claim(ClaimTypes.Role, user.Role)
+    };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds
+            );
             return new LoginResultDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
