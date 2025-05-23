@@ -41,5 +41,12 @@ namespace MainApp.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginWithGoogle([FromBody] FirebaseLoginDto dto)
+        {
+            var result = await _authService.FirebaseLoginAsync(dto);
+            return Ok(result);
+        }
     }
 }

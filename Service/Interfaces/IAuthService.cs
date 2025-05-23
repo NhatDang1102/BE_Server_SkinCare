@@ -8,5 +8,6 @@ namespace Service.Interfaces
         Task<string> RegisterAsync(RegisterDto dto);
         Task<string> VerifyOtpAsync(OtpVerifyDto dto);
         Task<LoginResultDto> LoginAsync(LoginDto dto);
+        Task<LoginResultDto> FirebaseLoginAsync(FirebaseLoginDto dto);
     }
 }
