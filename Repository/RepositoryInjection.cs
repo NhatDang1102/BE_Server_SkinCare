@@ -15,7 +15,10 @@ namespace Repository
         public static IServiceCollection AddRepositoryServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthRepository,AuthRepository>();
+            services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+
             return services;
         }
+
     }
 }
