@@ -9,6 +9,9 @@ namespace Service
         public static IServiceCollection AddServiceServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IImageUploadService, ImageUploadService>();
+
             return services;
         }
     }
