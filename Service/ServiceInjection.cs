@@ -11,7 +11,7 @@ namespace Service
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IImageUploadService, ImageUploadService>();
-
+            services.AddScoped<IPasswordResetService, PasswordResetService>();
             return services;
         }
     }

@@ -39,6 +39,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[PasswordResetRequests]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Payment_Logs]",
          "ObjectType": 0
       },

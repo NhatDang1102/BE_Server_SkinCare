@@ -16,6 +16,7 @@ namespace Repository
         {
             services.AddScoped<IAuthRepository,AuthRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 
             return services;
         }

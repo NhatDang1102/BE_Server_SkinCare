@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.DTOs;
 using Service.Interfaces;
+using Service.Services;
 
 namespace MainApp.Controllers
 {
@@ -30,24 +31,48 @@ namespace MainApp.Controllers
         [HttpGet]
         public async Task<ActionResult<UserProfileDto>> GetProfile()
         {
-            var profile = await _userService.GetProfileAsync(GetUserId());
-            return Ok(profile);
+            try
+            {
+                var profile = await _userService.GetProfileAsync(GetUserId());
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
         }
 
        //update name
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
         {
-            await _userService.UpdateProfileAsync(GetUserId(), dto);
-            return Ok(new { message = "Update thanh cong" });
+            try
+            {
+                await _userService.UpdateProfileAsync(GetUserId(), dto);
+                return Ok(new { message = "Update thanh cong" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+ 
         }
 
         // doi mk
         [HttpPut("password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
-            await _userService.ChangePasswordAsync(GetUserId(), dto);
-            return Ok(new { message = "Update thanh cong" });
+            try
+            {
+                await _userService.ChangePasswordAsync(GetUserId(), dto);
+                return Ok(new { message = "Update thanh cong" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
         }
 
         // Upload avatar (file multiform)
@@ -55,12 +80,20 @@ namespace MainApp.Controllers
         [HttpPost("avatar")]
         public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto dto)
         {
-            if (dto.ImageFile == null || dto.ImageFile.Length == 0)
-                return BadRequest("File ko hop le.");
+            try
+            {
+                if (dto.ImageFile == null || dto.ImageFile.Length == 0)
+                    return BadRequest("File ko hop le.");
 
-            var avatarUrl = await _imageUploadService.UploadAvatarAsync(dto.ImageFile);
-            await _userService.UpdateAvatarAsync(GetUserId(), avatarUrl);
-            return Ok(new { url = avatarUrl });
+                var avatarUrl = await _imageUploadService.UploadAvatarAsync(dto.ImageFile);
+                await _userService.UpdateAvatarAsync(GetUserId(), avatarUrl);
+                return Ok(new { url = avatarUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
         }
     }
 }
