@@ -44,7 +44,7 @@ namespace Service.Services
                 Email = dto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Name = dto.Name,
-                Role = dto.Role ?? "User",
+                Role = "User",
                 Otp = otp,
                 Otpexpiration = DateTime.Now.AddMinutes(5),
                 CreatedAt = DateTime.Now

@@ -30,6 +30,23 @@ namespace Service.Helpers
             await smtpClient.SendMailAsync(mail);
         }
 
+        public async Task SendOtpForgotEmailAsync(string toEmail, string otp)
+        {
+            var mail = new MailMessage(_smtp.FromEmail, toEmail)
+            {
+                Subject = "Yêu cầu đặt lại mật khẩu - SkinCareApp",
+                Body = $"Mã OTP đặt lại mật khẩu của bạn là: {otp}\nMã sẽ hết hạn sau 5 phút.",
+                IsBodyHtml = false
+            };
+
+            using var smtpClient = new SmtpClient(_smtp.Host, _smtp.Port)
+            {
+                EnableSsl = _smtp.EnableSsl,
+                Credentials = new NetworkCredential(_smtp.FromEmail, _smtp.AppPassword)
+            };
+            await smtpClient.SendMailAsync(mail);
+        }
+
         public async Task SendWelcomeEmailAsync(string toEmail, string name)
         {
             var mail = new MailMessage(_smtp.FromEmail, toEmail)

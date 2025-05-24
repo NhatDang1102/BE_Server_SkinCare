@@ -37,7 +37,7 @@ namespace Service.Services
             var result = await _cloudinary.UploadAsync(uploadParams);
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
                 return result.SecureUrl.ToString();
-            throw new Exception("Upload failed: " + result.Error?.Message);
+            throw new Exception("Upload thất bại: " + result.Error?.Message);
         }
     }
 }
