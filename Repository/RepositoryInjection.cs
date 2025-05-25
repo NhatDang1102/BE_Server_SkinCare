@@ -16,7 +16,8 @@ namespace Repository
         {
             services.AddScoped<IAuthRepository,AuthRepository>();
             services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
-
+            services.AddScoped<ISuggestedProductRepository, SuggestedProductRepository>();
+            services.AddScoped<IProductCategoryMappingRepository, ProductCategoryMappingRepository>();
             return services;
         }
 
