@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Service.Helpers;
 using Repository.Models;
 using Repository.DTOs;
+using Contract.Helpers;
 
 namespace MainApp
 {

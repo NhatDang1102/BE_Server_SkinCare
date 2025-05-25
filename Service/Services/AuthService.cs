@@ -11,6 +11,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
+using Contract.DTOs;
+using Contract.Helpers;
 
 namespace Service.Services
 {

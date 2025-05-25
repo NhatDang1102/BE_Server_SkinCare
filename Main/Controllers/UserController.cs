@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Contract.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.DTOs;

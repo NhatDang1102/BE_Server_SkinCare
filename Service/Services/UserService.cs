@@ -5,6 +5,7 @@ using Repository.Models;
 using Service.Interfaces;
 using BCrypt.Net;
 using Repository.DTOs;
+using Contract.DTOs;
 
 namespace Service.Services
 {

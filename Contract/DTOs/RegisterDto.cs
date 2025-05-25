@@ -1,4 +1,4 @@
-﻿namespace Repository.DTOs
+﻿namespace Contract.DTOs
 {
     public class RegisterDto
     {
