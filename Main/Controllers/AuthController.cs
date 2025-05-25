@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Contract.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using Repository.DTOs;
 using Service.Interfaces;
 using Service.Services;

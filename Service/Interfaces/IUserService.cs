@@ -1,4 +1,5 @@
-﻿using Repository.DTOs;
+﻿using Contract.DTOs;
+using Repository.DTOs;
 
 namespace Service.Interfaces
 {

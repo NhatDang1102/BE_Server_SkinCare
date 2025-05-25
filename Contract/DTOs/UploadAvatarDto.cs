@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Repository.DTOs
+namespace Contract.DTOs
 {
     public class UploadAvatarDto
     {
