@@ -10,9 +10,12 @@ namespace Service
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IProductCategoryService, ProductCategoryService>();
-            services.AddScoped<IImageUploadService, CloudinaryImageUploadService>();
+            services.AddScoped<IImageUploadService, ImageUploadService>();
             services.AddScoped<ISuggestedProductService, SuggestedProductService>();
             services.AddScoped<IProductCategoryMappingService, ProductCategoryMappingService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IImageUploadService, ImageUploadService>();
+            services.AddScoped<IPasswordResetService, PasswordResetService>();
             return services;
         }
     }

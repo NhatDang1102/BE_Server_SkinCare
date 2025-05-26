@@ -58,7 +58,7 @@ namespace Service.Services
             string imageUrl = null;
             if (request.ImageFile != null)
             {
-                imageUrl = await _imageService.UploadImageAsync(request.ImageFile);
+                imageUrl = await _imageService.UploadImageProductAsync(request.ImageFile);
             }
 
             var product = new SuggestedProduct
@@ -92,7 +92,7 @@ namespace Service.Services
 
             if (request.ImageFile != null)
             {
-                product.ImageLink = await _imageService.UploadImageAsync(request.ImageFile);
+                product.ImageLink = await _imageService.UploadImageProductAsync(request.ImageFile);
             }
 
             product.Name = request.Name;

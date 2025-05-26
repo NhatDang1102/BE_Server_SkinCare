@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Service.Helpers;
 using Repository.Models;
+using Repository.DTOs;
+using Contract.Helpers;
 
 namespace MainApp
 {
@@ -10,7 +12,8 @@ namespace MainApp
         public static IServiceCollection AddMainAppServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
-            services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+            services.Configure<JwtSettings>(configuration.GetSection("Jwt")); 
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
             services.AddSingleton<MailSender>();
             services.AddDbContext<SkinCareAppContext>();

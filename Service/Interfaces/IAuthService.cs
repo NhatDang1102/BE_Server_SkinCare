@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Contract.DTOs;
 using Repository.DTOs;
 
 namespace Service.Interfaces

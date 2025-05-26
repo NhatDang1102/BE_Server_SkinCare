@@ -1,4 +1,4 @@
-﻿namespace Service.Helpers
+﻿namespace Contract.Helpers
 {
     public class JwtSettings
     {

@@ -1,0 +1,100 @@
+﻿using System.Security.Claims;
+using Contract.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Repository.DTOs;
+using Service.Interfaces;
+using Service.Services;
+
+namespace MainApp.Controllers
+{
+    [ApiController]
+    [Route("SkinCare/Profile")]
+    [Authorize]
+    public class ProfileController : ControllerBase
+    {
+        private readonly IUserService _userService;
+        private readonly IImageUploadService _imageUploadService;
+
+        public ProfileController(IUserService userService, IImageUploadService imageUploadService)
+        {
+            _userService = userService;
+            _imageUploadService = imageUploadService;
+        }
+
+        private Guid GetUserId()
+        {
+            var idStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.Parse(idStr);
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult<UserProfileDto>> GetProfile()
+        {
+            try
+            {
+                var profile = await _userService.GetProfileAsync(GetUserId());
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+       //update name
+        [HttpPut]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        {
+            try
+            {
+                await _userService.UpdateProfileAsync(GetUserId(), dto);
+                return Ok(new { message = "Update thanh cong" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+ 
+        }
+
+        // doi mk
+        [HttpPut("password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            try
+            {
+                await _userService.ChangePasswordAsync(GetUserId(), dto);
+                return Ok(new { message = "Update thanh cong" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+        // Upload avatar (file multiform)
+
+        [HttpPost("avatar")]
+        public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto dto)
+        {
+            try
+            {
+                if (dto.ImageFile == null || dto.ImageFile.Length == 0)
+                    return BadRequest("File ko hop le.");
+
+                var avatarUrl = await _imageUploadService.UploadAvatarAsync(dto.ImageFile);
+                await _userService.UpdateAvatarAsync(GetUserId(), avatarUrl);
+                return Ok(new { url = avatarUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+    }
+}

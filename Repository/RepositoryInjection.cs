@@ -18,6 +18,8 @@ namespace Repository
             services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
             services.AddScoped<ISuggestedProductRepository, SuggestedProductRepository>();
             services.AddScoped<IProductCategoryMappingRepository, ProductCategoryMappingRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
             return services;
         }
 

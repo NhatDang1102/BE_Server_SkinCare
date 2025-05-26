@@ -11,6 +11,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
+using Contract.DTOs;
+using Contract.Helpers;
 
 namespace Service.Services
 {
@@ -44,7 +46,7 @@ namespace Service.Services
                 Email = dto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Name = dto.Name,
-                Role = dto.Role ?? "User",
+                Role = "User",
                 Otp = otp,
                 Otpexpiration = DateTime.Now.AddMinutes(5),
                 CreatedAt = DateTime.Now
@@ -97,6 +99,7 @@ namespace Service.Services
             //gen token
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Name ?? ""),
                 new Claim(ClaimTypes.Role, user.Role)
@@ -146,9 +149,10 @@ namespace Service.Services
             //gen jwt token
             var claims = new[]
             {
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Name, user.Name ?? ""),
-        new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Name ?? ""),
+                new Claim(ClaimTypes.Role, user.Role)
     };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

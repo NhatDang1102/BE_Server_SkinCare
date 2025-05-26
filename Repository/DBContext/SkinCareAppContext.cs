@@ -26,6 +26,8 @@ public partial class SkinCareAppContext : DbContext
 
     public virtual DbSet<DailyRoutineProduct> DailyRoutineProducts { get; set; }
 
+    public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
     public virtual DbSet<PaymentLog> PaymentLogs { get; set; }
 
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
@@ -55,7 +57,6 @@ public partial class SkinCareAppContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AiAnalysisLog>(entity =>
@@ -170,6 +171,21 @@ public partial class SkinCareAppContext : DbContext
                 .HasConstraintName("FK__Daily_Rou__Produ__03F0984C");
         });
 
+        modelBuilder.Entity<PasswordResetRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC075E5D42BF");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+            entity.Property(e => e.Otp)
+                .IsRequired()
+                .HasMaxLength(6);
+            entity.Property(e => e.OtpExpiration).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<PaymentLog>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Payment___3214EC07C4E47CA8");
@@ -279,7 +295,6 @@ public partial class SkinCareAppContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Name)
-                .IsRequired()
                 .HasMaxLength(255)
                 .HasDefaultValue("");
             entity.Property(e => e.Otp)
@@ -289,11 +304,7 @@ public partial class SkinCareAppContext : DbContext
             entity.Property(e => e.Otpexpiration)
                 .HasColumnType("datetime")
                 .HasColumnName("OTPExpiration");
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(255);
             entity.Property(e => e.Role)
-                .IsRequired()
                 .HasMaxLength(50)
                 .HasDefaultValue("User");
             entity.Property(e => e.UpdatedAt)
