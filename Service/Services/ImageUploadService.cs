@@ -39,21 +39,5 @@ namespace Service.Services
                 return result.SecureUrl.ToString();
             throw new Exception("Upload thất bại: " + result.Error?.Message);
         }
-        public async Task<string> UploadImageProductAsync(IFormFile file)
-        {
-            //khai bao stream doc file
-            using var stream = file.OpenReadStream();
-            //khai bao tt cho cloudinary
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                Folder = "skincare-products"
-            };
-            //upload len cloudinary
-            var result = await _cloudinary.UploadAsync(uploadParams);
-            if (result.StatusCode == System.Net.HttpStatusCode.OK)
-                return result.SecureUrl.ToString();
-            throw new Exception("Upload thất bại: " + result.Error?.Message);
-        }
     }
 }
