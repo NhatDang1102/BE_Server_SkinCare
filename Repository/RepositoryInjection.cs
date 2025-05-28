@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -15,15 +15,11 @@ namespace Repository
         public static IServiceCollection AddRepositoryServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthRepository,AuthRepository>();
-            services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
-            services.AddScoped<ISuggestedProductRepository, SuggestedProductRepository>();
-            services.AddScoped<IProductCategoryMappingRepository, ProductCategoryMappingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
             services.AddScoped<IAdminRepository, AdminRepository>();
 
             return services;
         }
-
     }
 }
