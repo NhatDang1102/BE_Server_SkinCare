@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Repository.Enums;
 
 namespace Repository.Models;
 
@@ -15,7 +16,7 @@ public partial class User
 
     public string Name { get; set; }
 
-    public string Role { get; set; }
+    public UserRole Role { get; set; }
 
     public bool? IsActive { get; set; }
 
