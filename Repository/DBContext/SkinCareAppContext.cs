@@ -332,6 +332,7 @@ public partial class SkinCareAppContext : DbContext
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Role)
                 .IsRequired()
+                .HasConversion<string>()
                 .HasMaxLength(50);
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
