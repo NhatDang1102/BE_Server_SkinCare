@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
 using Contract.DTOs;
 using Contract.Helpers;
+using Repository.Enums;
 
 namespace Service.Services
 {
@@ -71,7 +72,7 @@ namespace Service.Services
                 Email = temp.Email,
                 Password = temp.Password,
                 Name = temp.Name,
-                Role = temp.Role,
+                Role = (UserRole)Enum.Parse(typeof(UserRole), temp.Role),
                 IsActive = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
@@ -90,8 +91,11 @@ namespace Service.Services
             var user = await _repo.GetUserByEmailAsync(dto.Email);
 
             //check mail
-            if (user == null || (user.IsActive.HasValue && !user.IsActive.Value))
-                throw new Exception("Sai mail.");
+            if (user == null)
+                throw new Exception("Sai mail hoặc mail ko tồn tại.");
+            //check status
+            if (user.IsActive.HasValue && !user.IsActive.Value)
+                throw new Exception("Tài khoản đã bị khóa.");
             //check pass
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
                 throw new Exception("Pass sai");
@@ -102,7 +106,7 @@ namespace Service.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Name ?? ""),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
@@ -117,7 +121,7 @@ namespace Service.Services
             return new LoginResultDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Role = user.Role,
+                Role = user.Role.ToString(),
                 Name = user.Name
             };
         }
@@ -138,7 +142,7 @@ namespace Service.Services
                     Id = Guid.NewGuid(),
                     Email = email,
                     Name = decodedToken.Claims.ContainsKey("name") ? decodedToken.Claims["name"].ToString() : "Google User",
-                    Role = "User",
+                    Role = UserRole.User,
                     IsActive = true,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
@@ -152,7 +156,7 @@ namespace Service.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Name ?? ""),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role.ToString())
     };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -164,7 +168,7 @@ namespace Service.Services
             return new LoginResultDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Role = user.Role,
+                Role = user.Role.ToString(),
                 Name = user.Name
             };
         }
