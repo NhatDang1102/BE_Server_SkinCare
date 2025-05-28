@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Repository.Interfaces;
+using Repository.Repositories;
 using Service.Interfaces;
 using Service.Services;
 
@@ -13,7 +15,8 @@ namespace Service
             services.AddScoped<IImageUploadService, ImageUploadService>();
             services.AddScoped<IPasswordResetService, PasswordResetService>();
             services.AddScoped<IAdminService, AdminService>();
-
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
             return services;
         }
     }
