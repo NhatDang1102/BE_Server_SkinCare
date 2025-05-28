@@ -32,6 +32,20 @@ namespace MainApp
                     };
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("localhostFE",
+                    policy =>
+                    {
+                        policy
+                            .WithOrigins("http://localhost:5173")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+
+
+
             return services;
         }
     }
