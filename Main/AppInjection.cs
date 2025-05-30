@@ -14,6 +14,7 @@ namespace MainApp
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
             services.Configure<JwtSettings>(configuration.GetSection("Jwt")); 
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+            services.Configure<RedisSettings>(configuration.GetSection("Redis"));
 
             services.AddSingleton<MailSender>();
             services.AddDbContext<SkinCareAppContext>();
