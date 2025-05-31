@@ -62,7 +62,7 @@ namespace MainApp.Controllers
                     {
                         HttpOnly = true,
                         Secure = false, 
-                        SameSite = SameSiteMode.Lax, 
+                        SameSite = SameSiteMode.None, 
                         Expires = DateTimeOffset.UtcNow.AddHours(2)
                     });
 
@@ -88,8 +88,8 @@ namespace MainApp.Controllers
                     new CookieOptions
                     {
                         HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
+                        Secure = false,
+                        SameSite = SameSiteMode.None,
                         Expires = DateTimeOffset.UtcNow.AddHours(2)
                     });
 
