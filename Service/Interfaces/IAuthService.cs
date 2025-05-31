@@ -6,9 +6,10 @@ namespace Service.Interfaces
 {
     public interface IAuthService
     {
-        Task<string> RegisterAsync(RegisterDto dto);
-        Task<string> VerifyOtpAsync(OtpVerifyDto dto);
-        Task<LoginResultDto> LoginAsync(LoginDto dto);
-        Task<LoginResultDto> FirebaseLoginAsync(FirebaseLoginDto dto);
+        Task<string> RegisterAsync(RegisterRequestDto dto);
+        Task<string> VerifyOtpAsync(OtpVerifyRequestDto dto);
+        Task<LoginResponseDto> LoginAsync(LoginRequestDto dto);
+        Task<LoginResponseDto> FirebaseLoginAsync(FirebaseLoginRequestDto dto);
+        Task LogoutAsync(string token);
     }
 }

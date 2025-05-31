@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Contract.DTOs
 {
-    public class ResetPasswordDto
+    public class ResetPasswordRequestDto
     {
         public string Email { get; set; }
         public string Otp { get; set; }

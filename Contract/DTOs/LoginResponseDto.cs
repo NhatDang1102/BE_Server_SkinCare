@@ -1,6 +1,6 @@
 ﻿namespace Contract.DTOs
 {
-    public class LoginResultDto
+    public class LoginResponseDto
     {
         public string Token { get; set; }
         public string Role { get; set; }

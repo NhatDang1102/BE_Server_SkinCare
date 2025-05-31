@@ -14,6 +14,8 @@ using FirebaseAdmin.Auth;
 using Contract.DTOs;
 using Contract.Helpers;
 using Repository.Enums;
+using StackExchange.Redis;
+using CloudinaryDotNet;
 
 namespace Service.Services
 {
@@ -22,18 +24,21 @@ namespace Service.Services
         private readonly IAuthRepository _repo;
         private readonly MailSender _mailSender;
         private readonly JwtSettings _jwtSettings;
+        private readonly IRedisService _redis;
 
         public AuthService(
             IAuthRepository repo,
             MailSender mailSender,
-            IOptions<JwtSettings> jwtOptions)
+            IOptions<JwtSettings> jwtOptions,
+            IRedisService redis)
         {
             _repo = repo;
             _mailSender = mailSender;
             _jwtSettings = jwtOptions.Value;
+            _redis = redis;
         }
 
-        public async Task<string> RegisterAsync(RegisterDto dto)
+        public async Task<string> RegisterAsync(RegisterRequestDto dto)
         {
             //check mail trong ca temp va user
             if (await _repo.EmailExistsAsync(dto.Email))
@@ -59,7 +64,7 @@ namespace Service.Services
             return "Đã gửi OTP đến email, vui lòng xác minh.";
         }
 
-        public async Task<string> VerifyOtpAsync(OtpVerifyDto dto)
+        public async Task<string> VerifyOtpAsync(OtpVerifyRequestDto dto)
         {
             var temp = await _repo.GetTempUserByEmailAsync(dto.Email);
             if (temp == null) return "Email không tồn tại hoặc đã tồn tại.";
@@ -86,7 +91,7 @@ namespace Service.Services
             return "Xác thực thành công, tài khoản đã được tạo.";
         }
 
-        public async Task<LoginResultDto> LoginAsync(LoginDto dto)
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
             var user = await _repo.GetUserByEmailAsync(dto.Email);
 
@@ -118,7 +123,7 @@ namespace Service.Services
                 signingCredentials: creds
             );
 
-            return new LoginResultDto
+            return new LoginResponseDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Role = user.Role.ToString(),
@@ -126,7 +131,7 @@ namespace Service.Services
             };
         }
 
-        public async Task<LoginResultDto> FirebaseLoginAsync(FirebaseLoginDto dto)
+        public async Task<LoginResponseDto> FirebaseLoginAsync(FirebaseLoginRequestDto dto)
         {
             // xac minh token
             var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(dto.IdToken);
@@ -165,12 +170,31 @@ namespace Service.Services
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
             );
-            return new LoginResultDto
+            return new LoginResponseDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Role = user.Role.ToString(),
                 Name = user.Name
             };
         }
+
+        public async Task LogoutAsync(string token)
+        {
+            //đọc token
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            //lấy expiry
+            var expireAt = jwtToken.ValidTo;
+
+         
+            if (expireAt <= DateTime.UtcNow) return;
+
+            //đẩy vô redis
+            var key = $"blacklist:{token}";
+            var expiry = expireAt - DateTime.UtcNow;
+            await _redis.SetStringAsync(key, "1", expiry);
+        }
+
     }
 }

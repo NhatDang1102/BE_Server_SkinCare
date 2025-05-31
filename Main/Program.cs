@@ -50,6 +50,9 @@ app.UseCors("localhostFE");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseMiddleware<JwtBlacklistMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();
