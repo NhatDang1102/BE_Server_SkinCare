@@ -21,7 +21,7 @@ namespace MainApp.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterRequestDto dto)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace MainApp.Controllers
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp(OtpVerifyDto dto)
+        public async Task<IActionResult> VerifyOtp(OtpVerifyRequestDto dto)
         {
             try
             {
@@ -49,12 +49,24 @@ namespace MainApp.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             try
             {
                 var loginResult = await _authService.LoginAsync(dto);
-                return Ok(loginResult);
+                //phang token vô cookie httponly
+                Response.Cookies.Append(
+                    "access_token",
+                    loginResult.Token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true, 
+                        SameSite = SameSiteMode.Strict, 
+                        Expires = DateTimeOffset.UtcNow.AddHours(2)
+                    });
+
+                return Ok(new { role = loginResult.Role, name = loginResult.Name });
             }
             catch (Exception ex)
             {
@@ -63,12 +75,25 @@ namespace MainApp.Controllers
         }
 
         [HttpPost("login-google")]
-        public async Task<IActionResult> LoginWithGoogle([FromBody] FirebaseLoginDto dto)
+        public async Task<IActionResult> LoginWithGoogle([FromBody] FirebaseLoginRequestDto dto)
         {
             try
             {
                 var result = await _authService.FirebaseLoginAsync(dto);
-                return Ok(result);
+
+                //phang token vô cookie httponly
+                Response.Cookies.Append(
+                    "access_token",
+                    result.Token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddHours(2)
+                    });
+
+                return Ok(new { role = result.Role, name = result.Name });
             }
             catch (Exception ex)
             {
@@ -91,7 +116,7 @@ namespace MainApp.Controllers
         }
 
         [HttpPost("verify-forgot-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
         {
 
 
@@ -104,6 +129,21 @@ namespace MainApp.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            //lấy token trực tiếp từ cookie
+            if (!Request.Cookies.TryGetValue("access_token", out var token) || string.IsNullOrEmpty(token))
+                return BadRequest(new { message = "token ko tồn tại." });
+
+            await _authService.LogoutAsync(token);
+
+            //xóa cookie ở client
+            Response.Cookies.Delete("access_token");
+
+            return Ok(new { message = "logout thành công" });
         }
     }
 }

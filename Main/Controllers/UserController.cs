@@ -46,7 +46,7 @@ namespace MainApp.Controllers
 
        //update name
         [HttpPut]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        public async Task<IActionResult> UpdateProfile([FromBody] ProfileRequestDto dto)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace MainApp.Controllers
 
         // doi mk
         [HttpPut("password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
         {
             try
             {

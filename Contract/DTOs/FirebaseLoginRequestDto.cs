@@ -1,6 +1,6 @@
 ﻿namespace Contract.DTOs
 {
-    public class FirebaseLoginDto
+    public class FirebaseLoginRequestDto
     {
         public string IdToken { get; set; }
     }

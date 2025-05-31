@@ -32,7 +32,7 @@ namespace Service.Services
             };
         }
 
-        public async Task UpdateProfileAsync(Guid userId, UpdateUserProfileDto dto)
+        public async Task UpdateProfileAsync(Guid userId, ProfileRequestDto dto)
         {
             var user = await _repo.GetByIdAsync(userId);
             if (user == null) throw new Exception("Ko tim duoc user.");
@@ -46,7 +46,7 @@ namespace Service.Services
             await _repo.SaveChangesAsync();
         }
 
-        public async Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+        public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequestDto dto)
         {
             var user = await _repo.GetByIdAsync(userId);
             if (user == null) throw new Exception("Ko tim duoc user.");

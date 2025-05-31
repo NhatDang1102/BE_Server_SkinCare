@@ -4,6 +4,9 @@ using Service.Helpers;
 using Repository.Models;
 using Repository.DTOs;
 using Contract.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace MainApp
 {
@@ -20,18 +23,34 @@ namespace MainApp
             services.AddDbContext<SkinCareAppContext>();
 
             services.AddAuthentication("Bearer")
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                            System.Text.Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-                    };
-                });
+          .AddJwtBearer(options =>
+          {
+              options.TokenValidationParameters = new TokenValidationParameters
+              {
+                  ValidateIssuer = false,
+                  ValidateAudience = false,
+                  ValidateLifetime = true,
+                  ValidateIssuerSigningKey = true,
+                  IssuerSigningKey = new SymmetricSecurityKey(
+                      Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+              };
+
+              // Thêm code này để lấy token từ Cookie nếu không có trong header
+              options.Events = new JwtBearerEvents
+              {
+                  OnMessageReceived = context =>
+                  {
+                      //lay token tu cookie
+                      if (string.IsNullOrEmpty(context.Token))
+                      {
+                          var cookieToken = context.Request.Cookies["access_token"];
+                          if (!string.IsNullOrEmpty(cookieToken))
+                              context.Token = cookieToken;
+                      }
+                      return Task.CompletedTask;
+                  }
+              };
+          });
 
             services.AddCors(options =>
             {
@@ -41,6 +60,7 @@ namespace MainApp
                         policy
                             .WithOrigins("http://localhost:5173")
                             .AllowAnyHeader()
+                            .AllowCredentials() 
                             .AllowAnyMethod();
                     });
             });
