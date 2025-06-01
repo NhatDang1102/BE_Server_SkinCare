@@ -46,8 +46,7 @@ FirebaseApp.Create(new AppOptions()
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("localhostFE");
-app.UseCors("liveproductFE");
+app.UseCors("AllowAllFE");
 
 
 app.UseHttpsRedirection();

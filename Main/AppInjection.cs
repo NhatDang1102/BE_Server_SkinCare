@@ -54,29 +54,16 @@ namespace MainApp
 
             services.AddCors(options =>
             {
-                options.AddPolicy("localhostFE",
-                    policy =>
-                    {
-                        policy
-                            .WithOrigins("http://localhost:5173")
-                            .AllowAnyHeader()
-                            .AllowCredentials() 
-                            .AllowAnyMethod();
-                    });
+                options.AddPolicy("AllowAllFE", policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:5173", "https://exeskincare.onrender.com")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
             });
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("liveproductFE",
-                    policy =>
-                    {
-                        policy
-                            .WithOrigins("https://exeskincare.onrender.com")
-                            .AllowAnyHeader()
-                            .AllowCredentials()
-                            .AllowAnyMethod();
-                    });
-            });
 
             return services;
         }
