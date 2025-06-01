@@ -65,7 +65,18 @@ namespace MainApp
                     });
             });
 
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy("liveproductFE",
+                    policy =>
+                    {
+                        policy
+                            .WithOrigins("https://exeskincare.onrender.com")
+                            .AllowAnyHeader()
+                            .AllowCredentials()
+                            .AllowAnyMethod();
+                    });
+            });
 
             return services;
         }

@@ -47,6 +47,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("localhostFE");
+app.UseCors("liveproductFE");
+
 
 app.UseHttpsRedirection();
 
