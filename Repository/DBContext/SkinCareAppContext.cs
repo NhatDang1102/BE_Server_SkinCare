@@ -47,7 +47,7 @@ public partial class SkinCareAppContext : DbContext
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.Secret.json")
             .Build();
 
         string connectionString = config.GetConnectionString(connectionStringName);
