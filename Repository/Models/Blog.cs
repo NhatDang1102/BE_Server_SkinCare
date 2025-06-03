@@ -19,5 +19,9 @@ public partial class Blog
 
     public DateTime? UpdatedAt { get; set; }
 
+    public Guid? ProductId { get; set; }
+
     public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
+
+    public virtual SuggestedProduct Product { get; set; }
 }

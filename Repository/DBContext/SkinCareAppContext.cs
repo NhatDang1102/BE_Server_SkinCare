@@ -43,6 +43,7 @@ public partial class SkinCareAppContext : DbContext
     public virtual DbSet<UserVip> UserVips { get; set; }
 
     public virtual DbSet<VipPackage> VipPackages { get; set; }
+
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -112,6 +113,10 @@ public partial class SkinCareAppContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Blogs)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK_Blogs_ProductId");
         });
 
         modelBuilder.Entity<BlogComment>(entity =>
