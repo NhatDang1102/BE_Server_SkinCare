@@ -25,6 +25,8 @@ public partial class SuggestedProduct
 
     public virtual ICollection<AiAnalysisProduct> AiAnalysisProducts { get; set; } = new List<AiAnalysisProduct>();
 
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+
     public virtual ICollection<DailyRoutineProduct> DailyRoutineProducts { get; set; } = new List<DailyRoutineProduct>();
 
     public virtual ICollection<ProductCategoryMapping> ProductCategoryMappings { get; set; } = new List<ProductCategoryMapping>();
