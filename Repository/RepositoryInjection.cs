@@ -20,6 +20,9 @@ namespace Repository
             services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IBlogRepository, BlogRepository>();
+            services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
+
             return services;
         }
     }

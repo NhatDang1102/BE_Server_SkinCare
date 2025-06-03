@@ -17,6 +17,10 @@ namespace Service
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IBlogService, BlogService>();
+
+            services.AddScoped<IBlogCommentService, BlogCommentService>();
+
             services.AddSingleton<IRedisService, RedisService>();
 
             return services;

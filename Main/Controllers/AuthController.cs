@@ -141,7 +141,12 @@ namespace MainApp.Controllers
             await _authService.LogoutAsync(token);
 
             //xóa cookie ở client
-            Response.Cookies.Delete("access_token");
+            Response.Cookies.Delete("access_token", new CookieOptions
+            {
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
+            });
 
             return Ok(new { message = "logout thành công" });
         }
