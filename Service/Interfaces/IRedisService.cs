@@ -8,5 +8,7 @@ namespace Service.Interfaces
         Task SetStringAsync(string key, string value, TimeSpan? expiry = null);
         Task<string> GetStringAsync(string key);
         Task DeleteKeyAsync(string key);
+        Task<List<string>> GetValuesByPatternAsync(string pattern);
+
     }
 }
