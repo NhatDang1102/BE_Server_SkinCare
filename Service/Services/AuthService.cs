@@ -187,6 +187,10 @@ namespace Service.Services
             var today = DateTime.UtcNow.ToString("yyyyMMdd");
             var redisSetKey = $"login:{today}";
             await _redis.AddUserToLoginSetAsync(redisSetKey, user.Id.ToString());
+
+            var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            var device = _httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"].ToString();
+            await _redis.AddLoginHistoryAsync(user.Id, ip, device, DateTime.UtcNow);
             return new LoginResponseDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
