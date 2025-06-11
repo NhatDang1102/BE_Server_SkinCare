@@ -25,5 +25,33 @@ namespace Repository.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> CountUsersRegisteredDailyAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            return await _context.Users
+                .CountAsync(u => u.CreatedAt.HasValue && u.CreatedAt.Value.Date == today);
+        }
+
+        public async Task<int> CountUsersRegisteredWeeklyAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            return await _context.Users
+                .CountAsync(u => u.CreatedAt.HasValue
+                            && u.CreatedAt.Value.Date >= startOfWeek
+                            && u.CreatedAt.Value.Date <= today);
+        }
+
+        public async Task<int> CountUsersRegisteredMonthlyAsync()
+        {
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+            return await _context.Users
+                .CountAsync(u => u.CreatedAt.HasValue
+                            && u.CreatedAt.Value >= startOfMonth
+                            && u.CreatedAt.Value <= now);
+        }
     }
 }
+

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Contract.DTOs;
 
 namespace Service.Interfaces
 {
@@ -9,6 +10,11 @@ namespace Service.Interfaces
         Task<string> GetStringAsync(string key);
         Task DeleteKeyAsync(string key);
         Task<List<string>> GetValuesByPatternAsync(string pattern);
-
+        //track user
+        Task AddUserToLoginSetAsync(string setKey, string userId);
+        Task<long> GetLoginSetCountAsync(string setKey);
+        Task SetKeyExpireAsync(string setKey, TimeSpan expiry);
+        Task AddLoginHistoryAsync(Guid userId, string ip, string device, DateTime loginAt);
+        Task<List<LoginHistoryDto>> GetLoginHistoryAsync(Guid userId);
     }
 }
