@@ -39,5 +39,23 @@ namespace Service.Services
             await _repo.UpdateUserAsync(user);
             return true;
         }
+
+        public async Task<int> CountUsersRegisteredDailyAsync()
+        {
+            var result = await _repo.CountUsersRegisteredDailyAsync();
+            return result;
+        }
+
+        public async Task<int> CountUsersRegisteredWeeklyAsync()
+        {
+            var result = await _repo.CountUsersRegisteredWeeklyAsync();
+            return result;
+        }
+
+        public async Task<int> CountUsersRegisteredMonthlyAsync()
+        {
+            var result = await _repo.CountUsersRegisteredMonthlyAsync();
+            return result;
+        }
     }
 }
