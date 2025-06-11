@@ -43,6 +43,61 @@ namespace Main.Controllers
                 return BadRequest(new { message = ex.Message });
             }
 
+
+
+        }
+
+        [HttpGet("reg-users-daily")]
+        public async Task<IActionResult> CountUsersDaily()
+        {
+            try
+            {
+                var count = await _adminService.CountUsersRegisteredDailyAsync();
+                return Ok(new { count });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+
+            }
+        }
+
+        [HttpGet("reg-users-weekly")]
+        public async Task<IActionResult> CountUsersWeekly()
+        {
+            try
+            {
+                var count = await _adminService.CountUsersRegisteredWeeklyAsync();
+                return Ok(new { count });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+
+            }
+        }
+
+        [HttpGet("reg-users-monthly")]
+        public async Task<IActionResult> CountUsersMonthly()
+        {
+            try
+            {
+                var count = await _adminService.CountUsersRegisteredMonthlyAsync();
+                return Ok(new { count });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+
+            }
+        }
+
+        [HttpGet("count-login-daily")]
+        public async Task<IActionResult> CountUserLoginDaily()
+        {
+            var count = await _adminService.CountUserLoggedInDailyAsync();
+            return Ok(new { count });
         }
     }
 }
