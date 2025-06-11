@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
 using Contract.DTOs;
 using Repository.Interfaces;
 using Service.Interfaces;
+using StackExchange.Redis;
 
 namespace Service.Services
 {
     public class AdminService : IAdminService
     {
         private readonly IAdminRepository _repo;
-        public AdminService(IAdminRepository repo)
+        private readonly IRedisService _redis;
+        public AdminService(IAdminRepository repo, IRedisService redis)
         {
             _repo = repo;
+            _redis = redis;
         }
 
         public async Task<List<UserSimpleDto>> GetAllUsersAsync()
@@ -56,6 +60,14 @@ namespace Service.Services
         {
             var result = await _repo.CountUsersRegisteredMonthlyAsync();
             return result;
+        }
+
+        public async Task<int> CountUserLoggedInDailyAsync()
+        {
+            var today = DateTime.UtcNow.ToString("yyyyMMdd");
+            var setKey = $"login:{today}";
+            var count = await _redis.GetLoginSetCountAsync(setKey);
+            return (int)count;
         }
     }
 }

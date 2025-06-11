@@ -14,5 +14,6 @@ namespace Service.Interfaces
         Task<int> CountUsersRegisteredDailyAsync();
         Task<int> CountUsersRegisteredWeeklyAsync();
         Task<int> CountUsersRegisteredMonthlyAsync();
+        Task<int> CountUserLoggedInDailyAsync();
     }
 }

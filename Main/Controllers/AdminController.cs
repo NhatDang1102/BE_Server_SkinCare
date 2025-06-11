@@ -92,5 +92,12 @@ namespace Main.Controllers
 
             }
         }
+
+        [HttpGet("count-login-daily")]
+        public async Task<IActionResult> CountUserLoginDaily()
+        {
+            var count = await _adminService.CountUserLoggedInDailyAsync();
+            return Ok(new { count });
+        }
     }
 }
