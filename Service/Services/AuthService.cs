@@ -16,7 +16,6 @@ using Contract.Helpers;
 using Repository.Enums;
 using StackExchange.Redis;
 using CloudinaryDotNet;
-using Microsoft.AspNetCore.Http;
 
 namespace Service.Services
 {
@@ -26,20 +25,17 @@ namespace Service.Services
         private readonly MailSender _mailSender;
         private readonly JwtSettings _jwtSettings;
         private readonly IRedisService _redis;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public AuthService(
             IAuthRepository repo,
             MailSender mailSender,
             IOptions<JwtSettings> jwtOptions,
-            IRedisService redis,
-            IHttpContextAccessor httpContextAccessor)
+            IRedisService redis)
         {
             _repo = repo;
             _mailSender = mailSender;
             _jwtSettings = jwtOptions.Value;
             _redis = redis;
-            _httpContextAccessor = httpContextAccessor;
-
         }
 
         public async Task<string> RegisterAsync(RegisterRequestDto dto)
@@ -126,15 +122,6 @@ namespace Service.Services
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
             );
-            //luu zo redis
-            var today = DateTime.UtcNow.ToString("yyyyMMdd");
-            var redisSetKey = $"login:{today}";
-            await _redis.AddUserToLoginSetAsync(redisSetKey, user.Id.ToString());
-
-            //track user login history
-            var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-            var device = _httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"].ToString();
-            await _redis.AddLoginHistoryAsync(user.Id, ip, device, DateTime.UtcNow);
 
             return new LoginResponseDto
             {
@@ -183,14 +170,6 @@ namespace Service.Services
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
             );
-            //luu vo redis
-            var today = DateTime.UtcNow.ToString("yyyyMMdd");
-            var redisSetKey = $"login:{today}";
-            await _redis.AddUserToLoginSetAsync(redisSetKey, user.Id.ToString());
-
-            var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-            var device = _httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"].ToString();
-            await _redis.AddLoginHistoryAsync(user.Id, ip, device, DateTime.UtcNow);
             return new LoginResponseDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
