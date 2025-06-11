@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Contract.DTOs;
 using Contract.Helpers;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Service.Interfaces;
 using StackExchange.Redis;
 
@@ -13,6 +11,7 @@ namespace Service.Services
     {
         private readonly Lazy<ConnectionMultiplexer> _muxer;
         private IDatabase Db => _muxer.Value.GetDatabase();
+        private IServer Server => _muxer.Value.GetServer(_muxer.Value.GetEndPoints().First());
 
         public RedisService(IOptions<RedisSettings> options)
         {
@@ -32,46 +31,16 @@ namespace Service.Services
         public async Task DeleteKeyAsync(string key)
             => await Db.KeyDeleteAsync(key);
 
-        //track user
-        public async Task AddUserToLoginSetAsync(string setKey, string userId)
+        public async Task<List<string>> GetValuesByPatternAsync(string pattern)
         {
-            await Db.SetAddAsync(setKey, userId);
-            //refresh moi lan add lai key de ko trung user/set
-            await Db.KeyExpireAsync(setKey, TimeSpan.FromDays(2));
-        }
-
-        public async Task<long> GetLoginSetCountAsync(string setKey)
-        {
-            return await Db.SetLengthAsync(setKey);
-        }
-
-        public async Task SetKeyExpireAsync(string setKey, TimeSpan expiry)
-        {
-            await Db.KeyExpireAsync(setKey, expiry);
-        }
-
-        public async Task AddLoginHistoryAsync(Guid userId, string ip, string device, DateTime loginAt)
-        {
-            var key = $"loginhistory:{userId}";
-            var history = new LoginHistoryDto
+            var keys = Server.Keys(pattern: pattern).ToArray();
+            var result = new List<string>();
+            foreach (var key in keys)
             {
-                Ip = ip,
-                Device = device,
-                LoginAt = loginAt
-            };
-            var json = JsonConvert.SerializeObject(history);
-            await Db.ListRightPushAsync(key, json); 
+                var val = await Db.StringGetAsync(key);
+                if (!val.IsNullOrEmpty) result.Add(val!);
+            }
+            return result;
         }
-
-        public async Task<List<LoginHistoryDto>> GetLoginHistoryAsync(Guid userId)
-        {
-            var key = $"loginhistory:{userId}";
-            var items = await Db.ListRangeAsync(key, 0, -1); 
-            return items
-                .Select(i => JsonConvert.DeserializeObject<LoginHistoryDto>(i.ToString()))
-                .Where(i => i != null)
-                .ToList();
-        }
-
     }
 }

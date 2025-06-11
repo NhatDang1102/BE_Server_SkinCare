@@ -15,15 +15,11 @@ namespace MainApp.Controllers
     {
         private readonly IUserService _userService;
         private readonly IImageUploadService _imageUploadService;
-        private readonly IRedisService _redis;
 
-        public ProfileController(IUserService userService, IImageUploadService imageUploadService, IRedisService redis)
+        public ProfileController(IUserService userService, IImageUploadService imageUploadService)
         {
             _userService = userService;
             _imageUploadService = imageUploadService;
-            _redis = redis;
-          _redis = redis;
-
         }
 
         private Guid GetUserId()
@@ -100,21 +96,5 @@ namespace MainApp.Controllers
             }
 
         }
-
-        [HttpGet("login-history")]
-        public async Task<IActionResult> GetLoginHistory()
-        {
-            try
-            {
-                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var history = await _redis.GetLoginHistoryAsync(userId); // không truyền take
-                return Ok(history);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            }
-        }
+    }
 }

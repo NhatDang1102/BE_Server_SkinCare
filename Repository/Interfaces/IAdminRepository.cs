@@ -13,8 +13,5 @@ namespace Repository.Interfaces
         Task<List<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(Guid id);
         Task UpdateUserAsync(User user);
-        Task<int> CountUsersRegisteredDailyAsync();
-        Task<int> CountUsersRegisteredWeeklyAsync();
-        Task<int> CountUsersRegisteredMonthlyAsync();
     }
 }
