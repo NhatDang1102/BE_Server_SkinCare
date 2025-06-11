@@ -11,5 +11,9 @@ namespace Service.Interfaces
     {
         Task<List<UserSimpleDto>> GetAllUsersAsync();
         Task<bool> UpdateUserStatusAsync(UpdateUserStatusDto dto);
+        Task<int> CountUsersRegisteredDailyAsync();
+        Task<int> CountUsersRegisteredWeeklyAsync();
+        Task<int> CountUsersRegisteredMonthlyAsync();
+        Task<int> CountUserLoggedInDailyAsync();
     }
 }
