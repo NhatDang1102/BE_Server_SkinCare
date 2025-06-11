@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Contract.DTOs;
 using Contract.Helpers;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Service.Interfaces;
 using StackExchange.Redis;
 
@@ -31,6 +33,24 @@ namespace Service.Services
         public async Task DeleteKeyAsync(string key)
             => await Db.KeyDeleteAsync(key);
 
+
+        public async Task AddUserToLoginSetAsync(string setKey, string userId)
+        {
+            await Db.SetAddAsync(setKey, userId);
+            // Đảm bảo key chỉ sống 2 ngày (phòng bug), mỗi lần add lại refresh
+            await Db.KeyExpireAsync(setKey, TimeSpan.FromDays(2));
+        }
+
+        public async Task<long> GetLoginSetCountAsync(string setKey)
+        {
+            return await Db.SetLengthAsync(setKey);
+        }
+
+        public async Task SetKeyExpireAsync(string setKey, TimeSpan expiry)
+        {
+            await Db.KeyExpireAsync(setKey, expiry);
+        }
+
         public async Task<List<string>> GetValuesByPatternAsync(string pattern)
         {
             var keys = Server.Keys(pattern: pattern).ToArray();
@@ -42,5 +62,27 @@ namespace Service.Services
             }
             return result;
         }
+        public async Task AddLoginHistoryAsync(Guid userId, string ip, string device, DateTime loginAt)
+        {
+            var key = $"loginhistory:{userId}";
+            var history = new LoginHistoryDto
+            {
+                Ip = ip,
+                Device = device,
+                LoginAt = loginAt
+            };
+            var json = JsonConvert.SerializeObject(history);
+            await Db.ListRightPushAsync(key, json); 
+        }
+        public async Task<List<LoginHistoryDto>> GetLoginHistoryAsync(Guid userId)
+        {
+            var key = $"loginhistory:{userId}";
+            var items = await Db.ListRangeAsync(key, 0, -1); 
+            return items
+                .Select(i => JsonConvert.DeserializeObject<LoginHistoryDto>(i.ToString()))
+                .Where(i => i != null)
+                .ToList();
+        }
+
     }
 }

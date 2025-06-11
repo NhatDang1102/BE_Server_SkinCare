@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repository.DTOs;
 using Service.Interfaces;
 using Service.Services;
+using StackExchange.Redis;
 
 namespace MainApp.Controllers
 {
@@ -15,11 +16,14 @@ namespace MainApp.Controllers
     {
         private readonly IUserService _userService;
         private readonly IImageUploadService _imageUploadService;
+        private readonly IRedisService _redis;
 
-        public ProfileController(IUserService userService, IImageUploadService imageUploadService)
+        public ProfileController(IUserService userService, IImageUploadService imageUploadService, IRedisService redis)
         {
             _userService = userService;
             _imageUploadService = imageUploadService;
+            _redis = redis;
+
         }
 
         private Guid GetUserId()
@@ -96,5 +100,22 @@ namespace MainApp.Controllers
             }
 
         }
+
+        [HttpGet("login-history")]
+        public async Task<IActionResult> GetLoginHistory()
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var history = await _redis.GetLoginHistoryAsync(userId); // không truyền take
+                return Ok(history);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
     }
 }
+
