@@ -21,6 +21,8 @@ namespace Service
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IOpenAiService, OpenAiService>();
             services.AddScoped<IBlogCommentService, BlogCommentService>();
+            services.AddScoped<IOpenAiVisionService, OpenAiVisionService>();
+            services.AddScoped<IRoutineService, RoutineService>();
 
             services.AddSingleton<IRedisService, RedisService>();
 

@@ -22,6 +22,7 @@ namespace Repository
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
+            services.AddScoped<IDailyRoutineRepository, DailyRoutineRepository>();
 
             return services;
         }
