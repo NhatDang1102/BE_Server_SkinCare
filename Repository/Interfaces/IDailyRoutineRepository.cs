@@ -1,14 +1,19 @@
 ﻿using Repository.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Repository.Interfaces
+public interface IRoutineRepository
 {
-    public interface IDailyRoutineRepository
-    {
-        Task AddAsync(DailyRoutine routine);
-        Task AddRoutineProductAsync(DailyRoutineProduct mapping);
-        Task<DailyRoutine> GetByUserIdAsync(Guid userId);
-        Task DeleteRoutineProductsByRoutineIdAsync(Guid routineId);
-        Task DeleteAsync(DailyRoutine routine);
-    }
+    Task<DailyRoutine> GetByUserIdAsync(Guid userId);
+    Task<DailyRoutine> GetByIdAsync(Guid routineId);
+    Task AddAsync(DailyRoutine routine);
+    Task DeleteAsync(DailyRoutine routine);
+
+    // Product check CRUD
+    Task<RoutineProductCheck> GetCheckAsync(Guid userId, Guid routineId, Guid productId, string session, DateTime date);
+    Task UpsertCheckAsync(RoutineProductCheck check); // insert/update
+    Task<List<RoutineProductCheck>> GetChecksByRoutineAndDateAsync(Guid routineId, DateTime date);
+    Task<List<RoutineProductCheck>> GetCheckHistoryAsync(Guid routineId, DateTime startDate, DateTime endDate);
+    Task DeleteRoutineProductChecksByRoutineIdAsync(Guid routineId);
 }

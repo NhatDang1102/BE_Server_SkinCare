@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Contract.DTOs;
+﻿using Contract.DTOs;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Service.Interfaces
+public interface IRoutineService
 {
-    public interface IRoutineService
-    {
-        Task<RoutineResultDto> AnalyzeAndSaveRoutineAsync(Guid userId, IFormFile image);
-        Task<RoutineResultFullDto> GetRoutineByUserIdAsync(Guid userId);
+    Task<RoutineResultDto> AnalyzeAndCreateRoutineAsync(Guid userId, IFormFile image);
+    Task<RoutineResultDto> GetRoutineAsync(Guid userId);
+    Task CheckRoutineProductAsync(CheckRoutineProductDto dto, Guid userId);
+    Task<List<RoutineCheckHistoryDto>> GetWeeklyProgressAsync(Guid userId);
+    Task<RoutineDailyResultDto> GetRoutineDailyAsync(Guid userId, DateTime? date = null);
 
-    }
 }

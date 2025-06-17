@@ -17,7 +17,8 @@ public partial class DailyRoutine
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual ICollection<DailyRoutineProduct> DailyRoutineProducts { get; set; } = new List<DailyRoutineProduct>();
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     public virtual User User { get; set; }
 }

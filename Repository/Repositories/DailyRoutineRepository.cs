@@ -1,43 +1,76 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.Interfaces;
 using Repository.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+public class RoutineRepository : IRoutineRepository
 {
-    public class DailyRoutineRepository : IDailyRoutineRepository
+    private readonly SkinCareAppContext _ctx;
+    public RoutineRepository(SkinCareAppContext ctx) { _ctx = ctx; }
+
+    public async Task<DailyRoutine> GetByUserIdAsync(Guid userId) =>
+        await _ctx.DailyRoutines.FirstOrDefaultAsync(r => r.UserId == userId && r.EndDate >= DateTime.UtcNow);
+
+    public async Task<DailyRoutine> GetByIdAsync(Guid routineId) =>
+        await _ctx.DailyRoutines.FirstOrDefaultAsync(r => r.Id == routineId);
+
+    public async Task AddAsync(DailyRoutine routine)
     {
-        private readonly SkinCareAppContext _ctx;
-        public DailyRoutineRepository(SkinCareAppContext ctx) { _ctx = ctx; }
-
-        public async Task AddAsync(DailyRoutine routine)
-        {
-            _ctx.DailyRoutines.Add(routine);
-            await _ctx.SaveChangesAsync();
-        }
-
-        public async Task AddRoutineProductAsync(DailyRoutineProduct mapping)
-        {
-            _ctx.DailyRoutineProducts.Add(mapping);
-            await _ctx.SaveChangesAsync();
-        }
-
-        public async Task<DailyRoutine> GetByUserIdAsync(Guid userId)
-        {
-            return await _ctx.DailyRoutines.FirstOrDefaultAsync(r => r.UserId == userId);
-        }
-
-        public async Task DeleteRoutineProductsByRoutineIdAsync(Guid routineId)
-        {
-            var mappings = _ctx.DailyRoutineProducts.Where(m => m.DailyRoutineId == routineId);
-            _ctx.DailyRoutineProducts.RemoveRange(mappings);
-            await _ctx.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(DailyRoutine routine)
-        {
-            _ctx.DailyRoutines.Remove(routine);
-            await _ctx.SaveChangesAsync();
-        }
+        _ctx.DailyRoutines.Add(routine);
+        await _ctx.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(DailyRoutine routine)
+    {
+        _ctx.DailyRoutines.Remove(routine);
+        await _ctx.SaveChangesAsync();
+    }
+
+    public async Task<RoutineProductCheck> GetCheckAsync(Guid userId, Guid routineId, Guid productId, string session, DateTime date)
+    {
+        return await _ctx.RoutineProductChecks.FirstOrDefaultAsync(
+            x => x.UserId == userId && x.RoutineId == routineId && x.ProductId == productId
+                && x.Session == session && x.UsageDate == date.Date);
+    }
+
+    public async Task UpsertCheckAsync(RoutineProductCheck check)
+    {
+        var exist = await _ctx.RoutineProductChecks.FirstOrDefaultAsync(
+            x => x.UserId == check.UserId && x.RoutineId == check.RoutineId
+                && x.ProductId == check.ProductId && x.Session == check.Session && x.UsageDate == check.UsageDate);
+        if (exist != null)
+        {
+            exist.IsChecked = check.IsChecked;
+        }
+        else
+        {
+            _ctx.RoutineProductChecks.Add(check);
+        }
+        await _ctx.SaveChangesAsync();
+    }
+
+    public async Task<List<RoutineProductCheck>> GetChecksByRoutineAndDateAsync(Guid routineId, DateTime date)
+    {
+        return await _ctx.RoutineProductChecks
+            .Where(x => x.RoutineId == routineId && x.UsageDate == date.Date)
+            .ToListAsync();
+    }
+
+    public async Task<List<RoutineProductCheck>> GetCheckHistoryAsync(Guid routineId, DateTime weekStart, DateTime weekEnd)
+    {
+        return await _ctx.RoutineProductChecks
+            .Where(x => x.RoutineId == routineId
+                && x.UsageDate >= weekStart
+                && x.UsageDate <= weekEnd)
+            .ToListAsync();
+    }
+    public async Task DeleteRoutineProductChecksByRoutineIdAsync(Guid routineId)
+    {
+        var checks = _ctx.RoutineProductChecks.Where(x => x.RoutineId == routineId);
+        _ctx.RoutineProductChecks.RemoveRange(checks);
+        await _ctx.SaveChangesAsync();
+    }
+
 }

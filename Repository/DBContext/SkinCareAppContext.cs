@@ -24,9 +24,9 @@ public partial class SkinCareAppContext : DbContext
 
     public virtual DbSet<DailyRoutine> DailyRoutines { get; set; }
 
-    public virtual DbSet<DailyRoutineProduct> DailyRoutineProducts { get; set; }
 
     public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+    public virtual DbSet<RoutineProductCheck> RoutineProductChecks { get; set; }
 
     public virtual DbSet<PaymentLog> PaymentLogs { get; set; }
 
@@ -150,32 +150,14 @@ public partial class SkinCareAppContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-
+            entity.Property(e => e.StartDate).HasColumnType("date");
+            entity.Property(e => e.EndDate).HasColumnType("date");
             entity.HasOne(d => d.User).WithMany(p => p.DailyRoutines)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Daily_Rou__UserI__6EF57B66");
         });
 
-        modelBuilder.Entity<DailyRoutineProduct>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Daily_Ro__3214EC07F5CD4193");
-
-            entity.ToTable("Daily_Routine_Products");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-
-            entity.HasOne(d => d.DailyRoutine).WithMany(p => p.DailyRoutineProducts)
-                .HasForeignKey(d => d.DailyRoutineId)
-                .HasConstraintName("FK__Daily_Rou__Daily__02FC7413");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.DailyRoutineProducts)
-                .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__Daily_Rou__Produ__03F0984C");
-        });
-
+        
         modelBuilder.Entity<PasswordResetRequest>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Password__3214EC075E5D42BF");
@@ -366,6 +348,33 @@ public partial class SkinCareAppContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__User_VIP__VIPPac__5CD6CB2B");
         });
+
+        modelBuilder.Entity<RoutineProductCheck>(entity =>
+        {
+            entity.ToTable("Routine_Product_Checks");
+
+            entity.HasKey(e => e.Id);
+
+            entity.HasIndex(e => new { e.UserId, e.RoutineId, e.ProductId, e.Session, e.UsageDate }).IsUnique();
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsChecked).HasDefaultValue(true);
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_RPC_User");
+
+            entity.HasOne(d => d.Routine).WithMany()
+                .HasForeignKey(d => d.RoutineId)
+                .HasConstraintName("FK_RPC_Routine");
+
+            entity.HasOne(d => d.Product).WithMany()
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK_RPC_Product");
+        });
+
+
 
         modelBuilder.Entity<VipPackage>(entity =>
         {
