@@ -1,8 +1,7 @@
 ﻿using Contract.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MainApp.Controllers
 {
@@ -17,41 +16,100 @@ namespace MainApp.Controllers
             _routineService = routineService;
         }
 
-        [HttpPost("upload")]
         [Authorize]
-        public async Task<IActionResult> UploadRoutine([FromForm] RoutineRequestDto dto)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateRoutine([FromForm] CreateRoutineRequestDto dto)
         {
             try
             {
-                //lay userid
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                             User.FindFirstValue("sub");
-                if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new { message = "ko lay duoc userid, xem lai authorize." });
-
-                var result = await _routineService.AnalyzeAndSaveRoutineAsync(Guid.Parse(userId), dto.Image);
-                return Ok(result);
+                var userId = GetUserId();
+                var result = await _routineService.AnalyzeAndCreateRoutineAsync(userId, dto.Image);
+                return Ok(new { message = "Tạo routine thành công!", data = result });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { error = ex.Message });
             }
         }
 
-        [HttpGet("me")]
         [Authorize]
-        public async Task<IActionResult> GetMyRoutine()
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentRoutine()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "ko lay duoc userid, xem lai authorize." });
-
-            var result = await _routineService.GetRoutineByUserIdAsync(Guid.Parse(userId));
-            if (result == null)
-                return NotFound(new { message = "ban chua co routine." });
-
-            return Ok(result);
+            try
+            {
+                var userId = GetUserId();
+                var result = await _routineService.GetRoutineAsync(userId);
+                return Ok(new { data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
+        [Authorize]
+        [HttpPost("check")]
+        public async Task<IActionResult> CheckRoutineProduct([FromBody] CheckRoutineProductDto dto)
+        {
+            try
+            {
+                var userId = GetUserId();
+                await _routineService.CheckRoutineProductAsync(dto, userId);
+                return Ok(new { message = "Đánh dấu sản phẩm thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("progress/week")]
+        public async Task<IActionResult> GetWeeklyProgress()
+        {
+            try
+            {
+                var userId = GetUserId();
+                var history = await _routineService.GetWeeklyProgressAsync(userId);
+                return Ok(new { data = history });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet("daily")]
+        public async Task<IActionResult> GetRoutineDaily([FromQuery] string date = null)
+        {
+            try
+            {
+                var userId = GetUserId();
+                DateTime? usageDate = null;
+                if (!string.IsNullOrEmpty(date))
+                {
+                    if (!DateTime.TryParse(date, out var d))
+                        return BadRequest(new { error = "Sai định dạng ngày (yyyy-MM-dd)" });
+                    usageDate = d.Date;
+                }
+                var result = await _routineService.GetRoutineDailyAsync(userId, usageDate);
+                return Ok(new { data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        private Guid GetUserId()
+        {
+            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null)
+                throw new Exception("Không lấy được user id");
+            return Guid.Parse(userIdStr);
+        }
     }
 }
