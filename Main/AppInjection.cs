@@ -7,6 +7,7 @@ using Contract.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Net.payOS;
 
 namespace MainApp
 {
@@ -19,8 +20,15 @@ namespace MainApp
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             services.Configure<RedisSettings>(configuration.GetSection("Redis"));
 
+            PayOS payOS = new PayOS(
+    configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find PAYOS_CLIENT_ID"),
+    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find PAYOS_API_KEY"),
+    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find PAYOS_CHECKSUM_KEY")
+); 
+            services.AddSingleton(payOS);
             services.AddSingleton<MailSender>();
             services.AddDbContext<SkinCareAppContext>();
+            services.AddHttpContextAccessor();
 
             services.AddAuthentication("Bearer")
           .AddJwtBearer(options =>

@@ -23,6 +23,7 @@ namespace Service
             services.AddScoped<IBlogCommentService, BlogCommentService>();
             services.AddScoped<IOpenAiVisionService, OpenAiVisionService>();
             services.AddScoped<IRoutineService, RoutineService>();
+            services.AddScoped<IVipPaymentService, VipPaymentService>();
 
             services.AddSingleton<IRedisService, RedisService>();
 
