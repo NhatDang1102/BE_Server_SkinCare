@@ -7,6 +7,6 @@ namespace Service.Interfaces
     public interface IVipPaymentService
     {
         Task<string> CreateVipPaymentLinkAsync(Guid userId);
-        Task HandlePayOSWebhookAsync(PayOSWebhook data);
+        Task<bool> HandlePayOSWebhookAsync(PayOSWebhook data); 
     }
 }
