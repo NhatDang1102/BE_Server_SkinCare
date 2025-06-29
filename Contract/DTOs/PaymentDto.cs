@@ -40,4 +40,6 @@ namespace Contract.DTOs
         public string paymentLinkId { get; set; }
         // Thêm các field khác nếu muốn dùng
     }
+
+
 }

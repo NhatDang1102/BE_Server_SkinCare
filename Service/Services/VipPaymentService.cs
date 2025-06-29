@@ -1,13 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Contract.DTOs;
+﻿using Contract.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Net.payOS;
 using Net.payOS.Types;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Repository.Models;
 using Service.Interfaces;
-using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Service.Services
 {
@@ -64,18 +65,21 @@ namespace Service.Services
             return result.checkoutUrl;
         }
 
-        public async Task HandlePayOSWebhookAsync(PayOSWebhook data)
+        public async Task<bool> HandlePayOSWebhookAsync(PayOSWebhook data)
         {
-            
             var dataJson = data.data.ToString();
             var webhookData = JsonConvert.DeserializeObject<PayOSWebhookData>(dataJson);
 
             var log = await _db.PaymentLogs
                 .FirstOrDefaultAsync(x => x.TransactionId == webhookData.orderCode.ToString());
-            if (log == null) return;
+            if (log == null)
+            {
+                return false;
+            }
 
             log.PaymentStatus = data.success ? "Completed" : "Failed";
-            Console.WriteLine($"Webhook: Đang update log {log.TransactionId} thành {log.PaymentStatus}");
+            Console.WriteLine($"dang update {log.TransactionId} thành {log.PaymentStatus}");
+            _db.Entry(log).State = EntityState.Modified;
 
             log.UpdatedAt = DateTime.Now;
             await _db.SaveChangesAsync();
@@ -103,13 +107,22 @@ namespace Service.Services
                     else
                         userVip.ExpirationDate = now.AddMonths(1);
 
-                    userVip.PurchaseDate = now; // cập nhật lại purchase date (nếu muốn)
+                    userVip.PurchaseDate = now;
                     _db.UserVips.Update(userVip);
                 }
-
                 await _db.SaveChangesAsync();
             }
 
+            return true;
         }
+        public PayOSWebhook VerifyWebhook(WebhookType data)
+        {
+            return _payOS.verifyPaymentWebhookData(data);
+        }
+
+
+
+
     }
 }
+
