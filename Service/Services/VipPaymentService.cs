@@ -1,13 +1,11 @@
-﻿using Contract.DTOs;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Net.payOS;
 using Net.payOS.Types;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Repository.Models;
 using Service.Interfaces;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Service.Services
@@ -16,6 +14,7 @@ namespace Service.Services
     {
         private readonly SkinCareAppContext _db;
         private readonly PayOS _payOS;
+
 
         public VipPaymentService(SkinCareAppContext db, PayOS payOS)
         {
@@ -26,23 +25,23 @@ namespace Service.Services
         public async Task<string> CreateVipPaymentLinkAsync(Guid userId)
         {
             var vipPackage = await _db.VipPackages.OrderBy(x => x.Price).FirstOrDefaultAsync();
-            if (vipPackage == null) throw new Exception("Không tìm thấy gói VIP!");
+            if (vipPackage == null)
+                throw new Exception("Không tìm thấy gói VIP!");
 
-            var orderCode = $"{userId:N}{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-            int orderCodeInt = Math.Abs(orderCode.GetHashCode());
+            //dùng UnixTimeMilliseconds làm orderCode tránh dupe
+            long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            var item = new ItemData(vipPackage.Name, 1, 2000);
+            var item = new ItemData(vipPackage.Name, 1, (int)vipPackage.Price);
             var items = new List<ItemData> { item };
 
-            var baseUrl = "https://exe201skincarefenew.vercel.app";  //deploy url
-
+            var baseUrl = "https://exe201skincarefenew.vercel.app";
             var paymentData = new PaymentData(
-                orderCodeInt,
-                2000, //gia test
+                orderCode,
+                (int)vipPackage.Price,
                 "Thanh toán gói VIP EXE201",
                 items,
-           $"{baseUrl}/payment-page/cancel",
-           $"{baseUrl}/payment-page/success"
+                $"{baseUrl}/payment-page/cancel",
+                $"{baseUrl}/payment-page/success"
             );
 
             var result = await _payOS.createPaymentLink(paymentData);
@@ -51,12 +50,12 @@ namespace Service.Services
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                TransactionId = orderCodeInt.ToString(),
+                TransactionId = orderCode.ToString(),
                 PaymentStatus = "Pending",
-                PaymentAmount = 2000,
-                PaymentDate = DateTime.Now,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                PaymentAmount = vipPackage.Price,
+                PaymentDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 VippackageId = vipPackage.Id
             };
             _db.PaymentLogs.Add(log);
@@ -65,60 +64,90 @@ namespace Service.Services
             return result.checkoutUrl;
         }
 
-        public async Task<bool> HandlePayOSWebhookAsync(PayOSWebhook data)
+        public async Task<bool> HandlePayOSWebhookAsync(WebhookType webhookBody)
         {
-            var dataJson = data.data.ToString();
-            var webhookData = JsonConvert.DeserializeObject<PayOSWebhookData>(dataJson);
 
-            var log = await _db.PaymentLogs
-                .FirstOrDefaultAsync(x => x.TransactionId == webhookData.orderCode.ToString());
-            if (log == null)
+            WebhookData webhookData;
+            try
             {
+
+                Console.WriteLine("Received webhook: " + JsonConvert.SerializeObject(webhookBody));
+                webhookData = _payOS.verifyPaymentWebhookData(webhookBody);
+                Console.WriteLine("Verified webhook data: " + JsonConvert.SerializeObject(webhookData));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Verify webhook failed: {ex}");
                 return false;
             }
 
-            log.PaymentStatus = data.success ? "Completed" : "Failed";
-            Console.WriteLine($"dang update {log.TransactionId} thành {log.PaymentStatus}");
+            var transactionId = webhookData.orderCode.ToString();
+            Console.WriteLine($"Looking for transactionId = {transactionId} in DB...");
+            var log = await _db.PaymentLogs.FirstOrDefaultAsync(x => x.TransactionId == transactionId);
+            if (log == null)
+            {
+                Console.WriteLine($"Transaction {transactionId} not found in DB.");
+                return false;
+            }
+
+            bool isPaid = webhookBody.success
+                          && webhookData.code == "00"
+                          && webhookData.desc?.Trim().ToLower() == "success";
+
+            Console.WriteLine($"Payment status: {(isPaid ? "Completed" : "Failed")}");
+            log.PaymentStatus = isPaid ? "Completed" : "Failed";
+            log.UpdatedAt = DateTime.UtcNow;
             _db.Entry(log).State = EntityState.Modified;
 
-            log.UpdatedAt = DateTime.Now;
-            await _db.SaveChangesAsync();
-
-            if (data.success)
+            try
             {
-                var userVip = await _db.UserVips
-                    .FirstOrDefaultAsync(x => x.UserId == log.UserId && x.VippackageId == log.VippackageId);
-
-                if (userVip == null)
-                {
-                    _db.UserVips.Add(new UserVip
-                    {
-                        UserId = log.UserId.Value,
-                        VippackageId = log.VippackageId.Value,
-                        PurchaseDate = DateTime.Now,
-                        ExpirationDate = DateTime.Now.AddMonths(1)
-                    });
-                }
-                else
-                {
-                    var now = DateTime.Now;
-                    if (userVip.ExpirationDate != null && userVip.ExpirationDate > now)
-                        userVip.ExpirationDate = userVip.ExpirationDate.Value.AddMonths(1);
-                    else
-                        userVip.ExpirationDate = now.AddMonths(1);
-
-                    userVip.PurchaseDate = now;
-                    _db.UserVips.Update(userVip);
-                }
                 await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to update PaymentLog: {ex}");
+                return false;
+            }
+
+            if (isPaid)
+            {
+                try
+                {
+                    var userVip = await _db.UserVips.FirstOrDefaultAsync(x => x.UserId == log.UserId && x.VippackageId == log.VippackageId);
+
+                    var now = DateTime.UtcNow;
+                    if (userVip == null)
+                    {
+                        Console.WriteLine("Creating new UserVip record.");
+                        _db.UserVips.Add(new UserVip
+                        {
+                            UserId = log.UserId.Value,
+                            VippackageId = log.VippackageId.Value,
+                            PurchaseDate = now,
+                            ExpirationDate = now.AddMonths(1)
+                        });
+                    }
+                    else
+                    {
+                        Console.WriteLine("Updating existing UserVip expiration.");
+                        if (userVip.ExpirationDate != null && userVip.ExpirationDate > now)
+                            userVip.ExpirationDate = userVip.ExpirationDate.Value.AddMonths(1);
+                        else
+                            userVip.ExpirationDate = now.AddMonths(1);
+
+                        userVip.PurchaseDate = now;
+                        _db.UserVips.Update(userVip);
+                    }
+                    await _db.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to update UserVip: {ex}");
+                    return false;
+                }
             }
 
             return true;
         }
-
-
-
-
     }
 }
-
