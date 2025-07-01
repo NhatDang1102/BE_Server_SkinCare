@@ -15,9 +15,14 @@ public class JwtBlacklistMiddleware
     public async Task InvokeAsync(HttpContext context, IRedisService redisService)
     {
         string token = null;
-        //middleware check cookie, xong check key tren redis
-        
-        if (context.Request.Cookies.ContainsKey("access_token"))
+
+        var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+        {
+            token = authHeader.Substring("Bearer ".Length).Trim();
+        }
+
+        if (string.IsNullOrEmpty(token) && context.Request.Cookies.ContainsKey("access_token"))
         {
             token = context.Request.Cookies["access_token"];
         }
@@ -26,25 +31,18 @@ public class JwtBlacklistMiddleware
         {
             var blacklistKey = $"blacklist:{token}";
             var isBlacklisted = await redisService.GetStringAsync(blacklistKey);
-            //return plain text message
-            // if (!string.IsNullOrEmpty(isBlacklisted))
-            // {
-            //   context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            // await context.Response.WriteAsync("token này dính blacklist");
-            //return;
-            //}
-            //return json 
+
             if (!string.IsNullOrEmpty(isBlacklisted))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.ContentType = "application/json"; 
+                context.Response.ContentType = "application/json";
                 var json = "{\"message\":\"token này dính blacklist\"}";
                 await context.Response.WriteAsync(json);
                 return;
             }
-
         }
         await _next(context);
     }
+
 
 }

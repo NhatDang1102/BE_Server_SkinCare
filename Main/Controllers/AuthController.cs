@@ -47,32 +47,33 @@ namespace MainApp.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             try
             {
                 var loginResult = await _authService.LoginAsync(dto);
-                //phang token vô cookie httponly
+
+                // Cookie vẫn giữ, để cho web
                 Response.Cookies.Append(
                     "access_token",
                     loginResult.Token,
                     new CookieOptions
                     {
                         HttpOnly = true,
-                        Secure = true, 
-                        SameSite = SameSiteMode.None, 
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
                         Expires = DateTimeOffset.UtcNow.AddHours(2)
                     });
 
-                return Ok(new { role = loginResult.Role, name = loginResult.Name });
+                return Ok(new { token = loginResult.Token, role = loginResult.Role, name = loginResult.Name });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
+
 
         [HttpPost("login-google")]
         public async Task<IActionResult> LoginWithGoogle([FromBody] FirebaseLoginRequestDto dto)
@@ -93,7 +94,7 @@ namespace MainApp.Controllers
                         Expires = DateTimeOffset.UtcNow.AddHours(2)
                     });
 
-                return Ok(new { role = result.Role, name = result.Name });
+                return Ok(new { role = result.Token, result.Role, name = result.Name });
             }
             catch (Exception ex)
             {

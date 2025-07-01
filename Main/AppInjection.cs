@@ -65,14 +65,14 @@ namespace MainApp
                 options.AddPolicy("AllowAllFE", policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:5173", "https://exeskincare.onrender.com", "https://192.168.1.9:5173", "https://localhost:5173", "https://exe201-skincare-fe-new.onrender.com", "https://skinsenseteam.vercel.app")
+                        .WithOrigins("http://localhost:5173", "https://exeskincare.onrender.com", "https://192.168.1.9:5173", "https://localhost:5173", "https://exe201-skincare-fe-new.onrender.com", "https://skinsenseteam.vercel.app", "http://localhost:52946")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
                 });
             });
 
-
+            //flutter run -d chrome --web-port=52946//
             return services;
         }
     }
