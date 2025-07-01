@@ -34,7 +34,7 @@ namespace Service.Services
             var item = new ItemData(vipPackage.Name, 1, (int)vipPackage.Price);
             var items = new List<ItemData> { item };
 
-            var baseUrl = "https://exe201skincarefenew.vercel.app";
+            var baseUrl = "https://skinsenseteam.vercel.app";
             var paymentData = new PaymentData(
                 orderCode,
                 (int)vipPackage.Price,

@@ -9,5 +9,6 @@ namespace Repository.Interfaces
         Task<User> GetByEmailAsync(string email);
         Task UpdateAsync(User user);
         Task SaveChangesAsync();
+        Task<UserVip> GetUserVipAsync(Guid userId);
     }
 }

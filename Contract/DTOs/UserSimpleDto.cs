@@ -14,5 +14,7 @@ namespace Contract.DTOs
         public string Role { get; set; }
         public bool? IsActive { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public DateTime? VipExpirationDate { get; set; } // thêm field này để xuất Excel
     }
+    
 }

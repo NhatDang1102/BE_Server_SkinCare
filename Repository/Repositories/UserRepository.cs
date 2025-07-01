@@ -28,5 +28,14 @@ namespace Repository.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<UserVip> GetUserVipAsync(Guid userId)
+        {
+            return await _context.UserVips
+                .Where(x => x.UserId == userId && x.ExpirationDate > DateTime.UtcNow)
+                .OrderByDescending(x => x.ExpirationDate)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }

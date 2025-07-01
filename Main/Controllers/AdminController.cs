@@ -16,7 +16,7 @@ namespace Main.Controllers
             _adminService = adminService;
         }
 
-        [HttpGet("get-all-users")]
+        [HttpGet("users/get-all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -29,7 +29,7 @@ namespace Main.Controllers
 
         }
 
-        [HttpPut("status")]
+        [HttpPut("users/status")]
         public async Task<IActionResult> UpdateUserStatus([FromBody] UpdateUserStatusDto dto)
         {
             try
@@ -44,7 +44,7 @@ namespace Main.Controllers
             }
 
         }
-        [HttpGet("reg-users-daily")]
+        [HttpGet("users/reg-users-daily")]
         public async Task<IActionResult> CountUsersDaily()
         {
             try
@@ -59,7 +59,7 @@ namespace Main.Controllers
             }
         }
 
-        [HttpGet("reg-users-weekly")]
+        [HttpGet("users/reg-users-weekly")]
         public async Task<IActionResult> CountUsersWeekly()
         {
             try
@@ -74,7 +74,7 @@ namespace Main.Controllers
             }
         }
 
-        [HttpGet("reg-users-monthly")]
+        [HttpGet("users/reg-users-monthly")]
         public async Task<IActionResult> CountUsersMonthly()
         {
             try
@@ -90,7 +90,7 @@ namespace Main.Controllers
             }
         }
 
-        [HttpGet("count-login-daily")]
+        [HttpGet("users/count-login-daily")]
         public async Task<IActionResult> CountUserLoginDaily()
         {
             try
@@ -104,6 +104,51 @@ namespace Main.Controllers
             }
 
         }
+        [HttpGet("revenue/all-excel")]
+        public async Task<IActionResult> ExportPaymentLogExcel()
+        {
+            var logs = await _adminService.GetPaymentLogsAsync();
+            var bytes = ExcelHelper.ExportPaymentLogs(logs);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "payment-log.xlsx");
+        }
 
+        [HttpGet("users/excel")]
+        public async Task<IActionResult> ExportUserListExcel()
+        {
+            var users = await _adminService.GetAllUsersWithVipAsync();
+            var bytes = ExcelHelper.ExportUsers(users);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "users.xlsx");
+        }
+
+        [HttpGet("revenue/daily/excel")]
+        public async Task<IActionResult> ExportDailyRevenueExcel()
+        {
+            var today = DateTime.UtcNow.Date;
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(today, today.AddDays(1));
+            var bytes = ExcelHelper.ExportRevenue(logs, $"Doanh thu ngày {today:dd/MM/yyyy}");
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "revenue-daily.xlsx");
+        }
+
+        [HttpGet("revenue/weekly/excel")]
+        public async Task<IActionResult> ExportWeeklyRevenueExcel()
+        {
+            var today = DateTime.UtcNow.Date;
+            var monday = today.AddDays(-(int)today.DayOfWeek + 1);
+            var sunday = monday.AddDays(6);
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(monday, sunday.AddDays(1));
+            var bytes = ExcelHelper.ExportRevenue(logs, $"Doanh thu tuần {monday:dd/MM} - {sunday:dd/MM/yyyy}");
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "revenue-weekly.xlsx");
+        }
+
+        [HttpGet("revenue/monthly/excel")]
+        public async Task<IActionResult> ExportMonthlyRevenueExcel()
+        {
+            var now = DateTime.UtcNow;
+            var start = new DateTime(now.Year, now.Month, 1);
+            var end = start.AddMonths(1);
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(start, end);
+            var bytes = ExcelHelper.ExportRevenue(logs, $"Doanh thu tháng {now:MM/yyyy}");
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "revenue-monthly.xlsx");
+        }
     }
 }

@@ -15,5 +15,8 @@ namespace Service.Interfaces
         Task<int> CountUsersRegisteredWeeklyAsync();
         Task<int> CountUsersRegisteredMonthlyAsync();
         Task<int> CountUserLoggedInDailyAsync();
+        Task<List<PaymentLogDto>> GetPaymentLogsAsync();
+        Task<List<UserSimpleDto>> GetAllUsersWithVipAsync();
+        Task<List<PaymentLogDto>> GetPaymentLogsByDateRangeAsync(DateTime start, DateTime end);
     }
 }
