@@ -17,6 +17,8 @@ namespace MainApp.Controllers
         }
 
         [Authorize]
+        [UserVipRequired]
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoutine([FromForm] CreateRoutineRequestDto dto)
         {

@@ -43,17 +43,19 @@ public class RoutineService : IRoutineService
             imageBytes = ms.ToArray();
         }
         var products = await _productRepo.GetAllAsync();
-        var result = await _visionService.AnalyzeFaceAndSuggestRoutineAsync(
-            imageBytes,
-            products.Select(p => p.Name).ToList()
-        );
+        var result = await _visionService.AnalyzeFaceAndSuggestRoutineAsync(imageBytes, products.Select(p => p.Name).ToList());
+
         if (result.Trim().ToLower() == "ảnh không hợp lệ")
             throw new Exception("Ảnh không hợp lệ");
 
         var jsonStart = result.IndexOf('{');
         var jsonEnd = result.LastIndexOf('}');
+        if (jsonStart < 0 || jsonEnd < 0 || jsonEnd <= jsonStart)
+            throw new Exception("Phân tích ảnh thất bại! OpenAI không trả về JSON hợp lệ:\n" + result);
+
         var json = result.Substring(jsonStart, jsonEnd - jsonStart + 1);
         var doc = JsonDocument.Parse(json);
+
 
         List<RoutineProductDto> Map(string prop)
         {
