@@ -149,5 +149,32 @@ namespace Service.Services
 
             return true;
         }
+
+        public async Task<bool> CancelVipPaymentAsync(string transactionId, string? cancellationReason = null)
+        {
+            if (!long.TryParse(transactionId, out var orderCode))
+                return false;
+
+            try
+            {
+                var result = await _payOS.cancelPaymentLink(orderCode, cancellationReason ?? "User cancelled payment");
+
+                var log = await _db.PaymentLogs.FirstOrDefaultAsync(x => x.TransactionId == transactionId);
+                if (log != null)
+                {
+                    log.PaymentStatus = "Failed";
+                    log.UpdatedAt = DateTime.UtcNow;
+                    _db.Entry(log).State = EntityState.Modified;
+                    await _db.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }

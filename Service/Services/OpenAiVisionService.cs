@@ -31,7 +31,7 @@ public class OpenAiVisionService : IOpenAiVisionService
 - Đưa ra các tips, lưu ý khi kết hợp hoặc trình tự dùng, cũng như nhấn mạnh các sai lầm thường gặp liên quan các sản phẩm trên.
 - Ngắn gọn, súc tích, dễ áp dụng thực tế.
 
-Hãy trả về ở đúng format JSON sau:
+Hãy trả về ở đúng format JSON sau, không được sai, không được thừa thiếu:
 {{
   ""morning"": [""product_name_1"", ""product_name_2""],
   ""noon"": [""product_name_1"", ""product_name_2""],

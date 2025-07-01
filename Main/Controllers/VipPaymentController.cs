@@ -43,5 +43,20 @@ namespace MainApp.Controllers
             return Ok(new { success = handled });
         }
 
+        [HttpPost("cancel-link")]
+        [Authorize]
+        public async Task<IActionResult> CancelLink([FromBody] CancelLinkDto dto)
+        {
+            var success = await _vipPaymentService.CancelVipPaymentAsync(dto.TransactionId, dto.CancellationReason);
+            return Ok(new { success });
+        }
+
+        public class CancelLinkDto
+        {
+            public string TransactionId { get; set; }
+            public string? CancellationReason { get; set; }
+        }
+
+
     }
 }

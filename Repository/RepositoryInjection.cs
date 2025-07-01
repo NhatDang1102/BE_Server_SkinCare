@@ -23,7 +23,7 @@ namespace Repository
             services.AddScoped<IBlogRepository, BlogRepository>();
             services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
             services.AddScoped<IRoutineRepository, RoutineRepository>();
-
+            services.AddScoped<IUserVipRepository, UserVipRepository>();
             return services;
         }
     }

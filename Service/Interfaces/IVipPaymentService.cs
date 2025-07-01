@@ -9,5 +9,6 @@ namespace Service.Interfaces
     {
         Task<string> CreateVipPaymentLinkAsync(Guid userId);
         Task<bool> HandlePayOSWebhookAsync(WebhookType webhookBody);
+        Task<bool> CancelVipPaymentAsync(string transactionId, string? cancellationReason = null);
             }
 }
