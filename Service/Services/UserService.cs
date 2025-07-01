@@ -23,14 +23,21 @@ namespace Service.Services
             var user = await _repo.GetByIdAsync(userId);
             if (user == null) throw new Exception("Ko tim duoc user.");
 
+            DateTime? vipExpire = null;
+            var userVip = await _repo.GetUserVipAsync(userId); 
+            if (userVip != null)
+                vipExpire = userVip.ExpirationDate;
+
             return new UserProfileDto
             {
                 Id = user.Id,
                 Email = user.Email,
                 Name = user.Name,
-                ProfilePicture = user.ProfilePicture
+                ProfilePicture = user.ProfilePicture,
+                VipExpirationDate = vipExpire 
             };
         }
+
 
         public async Task UpdateProfileAsync(Guid userId, ProfileRequestDto dto)
         {

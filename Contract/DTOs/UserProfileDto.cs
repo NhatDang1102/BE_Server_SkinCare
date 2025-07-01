@@ -6,5 +6,6 @@
         public string Email { get; set; }   
         public string Name { get; set; }
         public string ProfilePicture { get; set; }
+        public DateTime? VipExpirationDate { get; set; }
     }
 }

@@ -69,5 +69,15 @@ namespace Service.Services
             var count = await _redis.GetLoginSetCountAsync(setKey);
             return (int)count;
         }
+        public async Task<List<PaymentLogDto>> GetPaymentLogsAsync()
+    => await _repo.GetPaymentLogsAsync();
+
+        public async Task<List<UserSimpleDto>> GetAllUsersWithVipAsync()
+            => await _repo.GetAllUsersWithVipAsync();
+
+        public async Task<List<PaymentLogDto>> GetPaymentLogsByDateRangeAsync(DateTime start, DateTime end)
+            => await _repo.GetPaymentLogsByDateRangeAsync(start, end);
+
+
     }
 }

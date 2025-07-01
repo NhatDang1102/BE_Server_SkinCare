@@ -19,7 +19,6 @@ public class UserVipRequiredAttribute : Attribute, IAsyncActionFilter
             return;
         }
 
-        // Lấy DI instance (dùng pattern này nếu không inject trực tiếp được)
         var userVipRepo = context.HttpContext.RequestServices.GetService(typeof(IUserVipRepository)) as IUserVipRepository;
         if (userVipRepo == null)
         {

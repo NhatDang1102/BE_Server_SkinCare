@@ -16,5 +16,8 @@ namespace Repository.Interfaces
         Task<int> CountUsersRegisteredDailyAsync();
         Task<int> CountUsersRegisteredWeeklyAsync();
         Task<int> CountUsersRegisteredMonthlyAsync();
+        Task<List<PaymentLogDto>> GetPaymentLogsAsync();
+        Task<List<UserSimpleDto>> GetAllUsersWithVipAsync();
+        Task<List<PaymentLogDto>> GetPaymentLogsByDateRangeAsync(DateTime start, DateTime end);
     }
 }
