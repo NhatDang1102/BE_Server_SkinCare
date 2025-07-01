@@ -34,7 +34,7 @@ namespace Service.Services
             var item = new ItemData(vipPackage.Name, 1, 2000);
             var items = new List<ItemData> { item };
 
-            var baseUrl = "https://exe201-skincare-fe-new.onrender.com";  //deploy url
+            var baseUrl = "https://exe201skincarefenew.vercel.app";  //deploy url
 
             var paymentData = new PaymentData(
                 orderCodeInt,
@@ -114,10 +114,6 @@ namespace Service.Services
             }
 
             return true;
-        }
-        public PayOSWebhook VerifyWebhook(WebhookType data)
-        {
-            return _payOS.verifyPaymentWebhookData(data);
         }
 
 
