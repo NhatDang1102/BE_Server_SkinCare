@@ -1,4 +1,5 @@
-﻿using Repository.Models;
+﻿using Contract.DTOs;
+using Repository.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,4 +17,8 @@ public interface IRoutineRepository
     Task<List<RoutineProductCheck>> GetChecksByRoutineAndDateAsync(Guid routineId, DateTime date);
     Task<List<RoutineProductCheck>> GetCheckHistoryAsync(Guid routineId, DateTime startDate, DateTime endDate);
     Task DeleteRoutineProductChecksByRoutineIdAsync(Guid routineId);
+
+    //feedback
+    Task AddAsync(RoutineFeedback feedback);
+    Task<List<RoutineFeedbackAdminDto>> GetAllFeedbacksAsync();
 }

@@ -24,7 +24,7 @@ namespace Service
             services.AddScoped<IOpenAiVisionService, OpenAiVisionService>();
             services.AddScoped<IRoutineService, RoutineService>();
             services.AddScoped<IVipPaymentService, VipPaymentService>();
-
+            services.AddScoped<IRoutineFeedbackService, RoutineFeedbackService>();
             services.AddSingleton<IRedisService, RedisService>();
 
             return services;

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Net.payOS;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using System.Threading.RateLimiting;
 
 namespace MainApp
 {
@@ -71,6 +73,30 @@ namespace MainApp
                         .AllowCredentials();
                 });
             });
+
+            services.AddRateLimiter(_ =>
+    _.AddPolicy("Routine30DayPerUser", context =>
+    {
+        var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        Console.WriteLine("RateLimit userId: " + userId);
+
+        if (string.IsNullOrEmpty(userId))
+            return RateLimitPartition.GetNoLimiter("");
+
+        return RateLimitPartition.GetTokenBucketLimiter(
+            userId,
+            _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 1,
+                TokensPerPeriod = 1,
+                ReplenishmentPeriod = TimeSpan.FromDays(30),
+                AutoReplenishment = true,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    }));
+
 
             //flutter run -d chrome --web-port=52946//
             return services;

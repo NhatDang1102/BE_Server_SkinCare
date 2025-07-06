@@ -1,7 +1,10 @@
 ﻿using Contract.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Service.Interfaces;
+using Service.Services;
 
 namespace MainApp.Controllers
 {
@@ -10,15 +13,17 @@ namespace MainApp.Controllers
     public class RoutineController : ControllerBase
     {
         private readonly IRoutineService _routineService;
+        private readonly IRoutineFeedbackService _routineFeedbackService;
 
-        public RoutineController(IRoutineService routineService)
+        public RoutineController(IRoutineService routineService, IRoutineFeedbackService routineFeedbackService)
         {
             _routineService = routineService;
+            _routineFeedbackService = routineFeedbackService;
         }
 
         [Authorize]
         [UserVipRequired]
-
+        [EnableRateLimiting("Routine30DayPerUser")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoutine([FromForm] CreateRoutineRequestDto dto)
         {
@@ -27,6 +32,10 @@ namespace MainApp.Controllers
                 var userId = GetUserId();
                 var result = await _routineService.AnalyzeAndCreateRoutineAsync(userId, dto.Image);
                 return Ok(new { message = "Tạo routine thành công!", data = result });
+            } catch (DbUpdateException)
+            {
+                return BadRequest(new { error = "xung đột feedback và routineid" });
+
             }
             catch (Exception ex)
             {
@@ -35,6 +44,8 @@ namespace MainApp.Controllers
         }
 
         [Authorize]
+        [EnableRateLimiting("Routine30DayPerUser")]
+
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentRoutine()
         {
@@ -105,6 +116,23 @@ namespace MainApp.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        [Authorize]
+        [HttpPost("feedback")]
+        public async Task<IActionResult> SubmitFeedback([FromForm] RoutineFeedbackCreateDto dto)
+        {
+            try
+            {
+                var userId = GetUserId();
+                await _routineFeedbackService.SubmitFeedbackAsync(userId, dto);
+                return Ok(new { message = "Đã gửi feedback routine cho admin!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
 
         private Guid GetUserId()
         {

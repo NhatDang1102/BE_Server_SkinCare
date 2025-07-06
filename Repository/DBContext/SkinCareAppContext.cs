@@ -39,6 +39,7 @@ public partial class SkinCareAppContext : DbContext
     public virtual DbSet<TempUser> TempUsers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<RoutineFeedback> RoutineFeedback { get; set; }
 
     public virtual DbSet<UserVip> UserVips { get; set; }
 
@@ -374,6 +375,26 @@ public partial class SkinCareAppContext : DbContext
                 .HasConstraintName("FK_RPC_Product");
         });
 
+        modelBuilder.Entity<RoutineFeedback>(entity =>
+        {
+            entity.ToTable("Routine_Feedback");
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Message).IsRequired();
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Routine_Feedback_User");
+
+            entity.HasOne(d => d.Routine)
+                .WithMany()
+                .HasForeignKey(d => d.RoutineId)
+                .HasConstraintName("FK_Routine_Feedback_Routine");
+        });
 
 
         modelBuilder.Entity<VipPackage>(entity =>

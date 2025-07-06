@@ -63,6 +63,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseMiddleware<JwtBlacklistMiddleware>();
+app.UseRateLimiter();
 
 app.UseAuthorization();
 

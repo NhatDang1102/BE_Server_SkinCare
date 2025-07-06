@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Services;
 
 namespace Main.Controllers
 {
@@ -11,9 +12,11 @@ namespace Main.Controllers
     public class AdminUserController : ControllerBase
     {
         private readonly IAdminService _adminService;
-        public AdminUserController(IAdminService adminService)
+        private readonly IRoutineFeedbackService _routineFeedbackService;
+        public AdminUserController(IAdminService adminService, IRoutineFeedbackService routineFeedbackService)
         {
             _adminService = adminService;
+            _routineFeedbackService = routineFeedbackService;
         }
 
         [HttpGet("users/get-all-users")]
@@ -150,5 +153,51 @@ namespace Main.Controllers
             var bytes = ExcelHelper.ExportRevenue(logs, $"Doanh thu tháng {now:MM/yyyy}");
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "revenue-monthly.xlsx");
         }
+
+        [HttpGet("revenue/daily")]
+        public async Task<IActionResult> GetDailyRevenue()
+        {
+            var today = DateTime.UtcNow.Date;
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(today, today.AddDays(1));
+
+            var total = logs
+    .Where(x => x.PaymentStatus == "Completed")
+    .Sum(x => x.PaymentAmount ?? 0);
+            return Ok(new { total, logs });
+        }
+
+        [HttpGet("revenue/weekly")]
+        public async Task<IActionResult> GetWeeklyRevenue()
+        {
+            var today = DateTime.UtcNow.Date;
+            var monday = today.AddDays(-(int)today.DayOfWeek + 1);
+            var sunday = monday.AddDays(6);
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(monday, sunday.AddDays(1));
+            var total = logs
+    .Where(x => x.PaymentStatus == "Completed")
+    .Sum(x => x.PaymentAmount ?? 0);
+            return Ok(new { total, logs });
+        }
+
+        [HttpGet("revenue/monthly")]
+        public async Task<IActionResult> GetMonthlyRevenue()
+        {
+            var now = DateTime.UtcNow;
+            var start = new DateTime(now.Year, now.Month, 1);
+            var end = start.AddMonths(1);
+            var logs = await _adminService.GetPaymentLogsByDateRangeAsync(start, end);
+            var total = logs
+    .Where(x => x.PaymentStatus == "Completed")
+    .Sum(x => x.PaymentAmount ?? 0);
+            return Ok(new { total, logs });
+        }
+
+        [HttpGet("routine-feedbacks")]
+        public async Task<IActionResult> GetAllFeedbacks()
+        {
+            var feedbacks = await _routineFeedbackService.GetAllFeedbacksAsync();
+            return Ok(feedbacks);
+        }
+
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Contract.DTOs;
+using DocumentFormat.OpenXml.InkML;
+using Microsoft.EntityFrameworkCore;
 using Repository.Models;
 using System;
 using System.Collections.Generic;
@@ -72,5 +74,30 @@ public class RoutineRepository : IRoutineRepository
         _ctx.RoutineProductChecks.RemoveRange(checks);
         await _ctx.SaveChangesAsync();
     }
+
+    public async Task AddAsync(RoutineFeedback feedback)
+    {
+        _ctx.RoutineFeedback.Add(feedback);
+        await _ctx.SaveChangesAsync();
+    }
+
+    public async Task<List<RoutineFeedbackAdminDto>> GetAllFeedbacksAsync()
+    {
+        return await (from fb in _ctx.RoutineFeedback
+                      join u in _ctx.Users on fb.UserId equals u.Id
+                      select new RoutineFeedbackAdminDto
+                      {
+                          Id = fb.Id,
+                          UserEmail = u.Email ?? "",
+                          UserName = u.Name ?? "",
+                          RoutineId = fb.RoutineId,
+                          Message = fb.Message ?? "",
+                          ImageUrl = fb.ImageUrl ?? "",   
+                          CreatedAt = fb.CreatedAt
+                      })
+                      .OrderByDescending(x => x.CreatedAt)
+                      .ToListAsync();
+    }
+
 
 }
