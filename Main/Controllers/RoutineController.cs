@@ -23,7 +23,6 @@ namespace MainApp.Controllers
 
         [Authorize]
         [UserVipRequired]
-        [EnableRateLimiting("Routine30DayPerUser")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoutine([FromForm] CreateRoutineRequestDto dto)
         {
@@ -44,8 +43,6 @@ namespace MainApp.Controllers
         }
 
         [Authorize]
-        [EnableRateLimiting("Routine30DayPerUser")]
-
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentRoutine()
         {

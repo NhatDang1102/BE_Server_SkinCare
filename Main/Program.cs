@@ -48,7 +48,7 @@ var app = builder.Build();
 
 FirebaseApp.Create(new AppOptions()
 {
-    Credential = GoogleCredential.FromFile("skincare-f2d06-firebase-adminsdk-fbsvc-85448f1f3b.json")
+    Credential = GoogleCredential.FromFile("skincare-f2d06-firebase-adminsdk-fbsvc-af60910dd0.json")
 });
 
 // Configure the HTTP request pipeline.
