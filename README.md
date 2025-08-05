@@ -8,7 +8,7 @@ A comprehensive ASP.NET Core Web API for a skincare application featuring AI-pow
 - **User Management**: Registration, authentication, profile management with JWT tokens
 - **Product Catalog**: Complete CRUD operations for skincare products and categories
 - **AI Integration**: OpenAI-powered skincare and facial images analysis for generating routines and product recommendations
-- **Routine Management**: Daily skincare routine tracking with feedback system
+- **Routine Management**: Daily skincare routine tracking with feedback system, with tracking usages for each session
 - **Blog System**: Content management with commenting functionality
 - **Payment Integration**: VIP subscription system with PayOS payment gateway
 - **Admin Dashboard**: Administrative controls and analytics
